@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block body%}
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand" href="/">
+      <img src="/static/images/logo.png" width="30" height="30" class="d-inline-block align-top" alt="">
+      Dormitory Website
+    </a>
+    <!-- Home Button -->
+    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="/">Home</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<hr>
+
+<body class="sticky-footer">
+  <div class="content">
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h1 class="text-center mb-5">Guest Login</h1>
+      <form action="{{ url_for('auth_guest') }}" method="POST">
+        <div class="mb-3">
+          <label for="guest-name" class="form-label">Name</label>
+          <input type="text" class="form-control" id="guest-name" name="name" placeholder="Enter your name">
+        </div>
+        <div class="mb-3">
+          <label for="guest-password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="guest-password" name="password" placeholder="Enter your password">
+        </div>
+        <button type="submit" class="btn btn-submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<hr>
+
+<div class="footer">
+<!-- Footer -->
+<div class="bg-dark text-white py-3">
+  <div class="container text-center">
+    <p class="mb-0">Dormitory Website! &copy; 2023.</p>
+  </div>
+</div>
+
+<div class="footer">
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+
+{% endblock%}
