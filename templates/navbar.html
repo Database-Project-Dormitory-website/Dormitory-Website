@@ -16,8 +16,10 @@
             Account
           </a>
           <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ url_for('register') }}">Sign Up</a></li>
             <li><a class="dropdown-item" href="{{ url_for('guestlogin') }}">Sign In</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('index')}}">Log Out</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('index') }}">Log Out</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('adminlogin') }}">Admin</a></li>
           </ul>
         </li>
       </ul>

@@ -249,6 +249,10 @@ def remove_guest():
 
         flash('Guest removed!', 'guest-rmv-success')
         return redirect(url_for('admindashboard'))
+    
+@app.route('/register/', methods=['GET', 'POST'])
+def register():
+    return render_template('register.html')
 
 @app.route("/remove_menu_item", methods=['POST'])
 def remove_menu_item():
