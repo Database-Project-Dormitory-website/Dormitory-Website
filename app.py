@@ -254,6 +254,10 @@ def remove_guest():
 def register():
     return render_template('register.html')
 
+@app.route('/roomlists')
+def roomlists():
+    return render_template('roomlists.html')
+
 @app.route("/remove_menu_item", methods=['POST'])
 def remove_menu_item():
     item_id = request.form['item_id']
