@@ -1,8 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, flash, session
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_mysqldb import MySQL
 import sqlite3
+import yaml
 
 app = Flask(__name__)
 app.secret_key = '1893'
+cred = yaml.load(open('cred.yaml'), Loader=yaml.Loader)
+app.config['MYSQL_HOST'] = cred['mysql_host']
+app.config['MYSQL_USER'] = cred['mysql_user']
+app.config['MYSQL_PASSWORD'] = cred['mysql_password']
+app.config['MYSQL_DB'] = cred['mysql_db']
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
 
 #conn = sqlite3.connect('models/dormWEB.db')
 #con = conn.cursor()
@@ -33,6 +44,7 @@ def auth_guest():
         return redirect(url_for("guestdashboard"))
     else:
         return redirect(url_for("guestlogin"))
+    
 
 @app.route("/guestdashboard", methods=['GET', 'POST'])
 def guestdashboard():
@@ -154,6 +166,7 @@ def bookroom():
     return render_template("bookroom.html", rooms=room_list)
 
 
+
 @app.route("/adminlogin")
 def adminlogin():
     return render_template("adminlogin.html")
@@ -220,6 +233,7 @@ def admindashboard():
 
     return render_template("admindashboard.html", room_requests=room_requests, current_guests=current_guests, current_menu=current_menu)
 
+
 @app.route("/rejectrequest", methods=['POST'])
 def rejectrequest():
     with sqlite3.connect('models/dormWEB.db') as conn:
@@ -250,8 +264,43 @@ def remove_guest():
         flash('Guest removed!', 'guest-rmv-success')
         return redirect(url_for('admindashboard'))
     
+    
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
+    if request.method == 'GET':
+        return render_template('register.html')
+    elif request.method == 'POST':
+        userDetails = request.form
+
+        # Check the password and confirm password
+        if userDetails['password'] != userDetails['confirm_password']:
+            flash('Passwords do not match!', 'danger')
+            return render_template('register.html')
+
+        p1 = userDetails['first_name']
+        p2 = userDetails['last_name']
+        p3 = userDetails['username']
+        p4 = userDetails['email']
+        p5 = userDetails['password']
+        p6 = userDetails['phone_number']
+
+        hashed_pw = generate_password_hash(p5)
+        print(p1 + "," + p2 + "," + p3 + "," + p4 + "," + p5 + "," + p6 + "," + hashed_pw)
+
+        queryStatement = (
+            f"INSERT INTO "
+            f"user(first_name, last_name, username, email, phone_number, password) "
+            f"VALUES('{p1}', '{p2}', '{p3}', '{p4}', '{p6}', '{hashed_pw}')"
+        )
+        print(check_password_hash(hashed_pw, p5))
+        print(queryStatement)
+        cur = mysql.connection.cursor()
+        cur.execute(queryStatement)
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Form Submitted Successfully.", "success")
+        return redirect('/')    
     return render_template('register.html')
 
 @app.route('/roomlists')

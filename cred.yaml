@@ -1,4 +1,4 @@
 mysql_host : 'localhost'
 mysql_user : 'root'
 mysql_password : 'iccsroot'
-mysql_db : 'dorm_db'
+mysql_db : 'dormitorydb'
