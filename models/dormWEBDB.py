@@ -79,7 +79,6 @@ c.execute('''CREATE TABLE IF NOT EXISTS guests
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               name TEXT NOT NULL,
               password TEXT NOT NULL, bill INTEGER DEFAULT 0, balance INTEGER DEFAULT 100000)''')
-
 #c.execute("DROP TABLE guests;")
 
 # Check if the table exists
@@ -116,6 +115,25 @@ else:
 c.execute("SELECT * FROM guests")
 m = c.fetchall()
 print(m)
+
+# Check if the table exists
+c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Problem'")
+table_exists = c.fetchone()
+
+if not table_exists:
+    # Create the Problem table
+    c.execute('''CREATE TABLE Problem
+                 (problem_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  user_id INTEGER,
+                  room_id INTEGER,
+                  problem_details TEXT,
+                  status TEXT DEFAULT 'pending',
+                  FOREIGN KEY (user_id) REFERENCES guests(id),
+                  FOREIGN KEY (room_id) REFERENCES room(id))''')
+
+    print("Problem table created successfully")
+else:
+    print("Problem table already exists")
 
 conn.commit()
 conn.close()
