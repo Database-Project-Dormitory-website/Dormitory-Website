@@ -410,5 +410,30 @@ def logout():
     flash("You have been logged out", 'info')
     return redirect('/')
 
+@app.route('/delete-review/<int:id>/')
+def delete_review(id):
+    try:
+        username = session['username']
+    except:
+        flash('Please sign in first', 'danger')
+        return redirect('/login')
+    
+    cur = mysql.connection.cursor()
+    review_user = f"SELECT username FROM reviews WHERE review_id = {id}"
+    cur.execute(review_user)
+    user = cur.fetchall()
+
+    if (user[0]['username'] == session['username']):
+        queryStatement = f"DELETE FROM reviews WHERE review_id = {id}"
+        print(queryStatement)
+        cur.execute(queryStatement)
+        mysql.connection.commit()
+        flash("Your review is deleted", "success")
+        return redirect('/reviews')
+    else:
+        flash("This is not your review", "danger")
+        return redirect('/reviews')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
