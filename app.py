@@ -258,6 +258,10 @@ def register():
 def roomlists():
     return render_template('roomlists.html')
 
+@app.route('/reviews')
+def reviews():
+    return render_template('reviews.html')
+
 @app.route("/remove_menu_item", methods=['POST'])
 def remove_menu_item():
     item_id = request.form['item_id']
