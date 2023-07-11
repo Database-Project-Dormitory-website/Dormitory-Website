@@ -1,0 +1,41 @@
+<!-- problems.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4 mb-4">Problem Reports</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Problem ID</th>
+                <th>Room ID</th>
+                <th>Problem Details</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for problem in problems %}
+            <tr>
+                <td>{{ problem[0] }}</td>
+                <td>{{ problem[1] }}</td>
+                <td>{{ problem[2] }}</td>
+                <td>{{ problem[3] }}</td>
+                <td>
+                    <form action="/problems/update" method="POST">
+                        <input type="hidden" name="problem_id" value="{{ problem[0] }}">
+                        <select name="new_status" class="form-select">
+                            <option value="pending" {% if problem[3] =='pending' %}selected{% endif %}>Pending</option>
+                            <option value="done" {% if problem[3] =='done' %}selected{% endif %}>Done</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

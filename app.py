@@ -473,14 +473,25 @@ def report_problem():
             return render_template('report_problem.html', error="Please fill in all fields.")
     with sqlite3.connect('models/dormWEB.db') as conn:
         con = conn.cursor()
-    con.execute("INSERT INTO Problem (user_id, room_id, problem_details, status) VALUES (?, ?, ?, ?)",
-              (username, room_number, problem_description, 'pending'))
-    conn.commit()
+        con.execute("INSERT INTO Problems (user_id, room_id, problem_details, status) VALUES (?, ?, ?, ?)",
+                (username, room_number, problem_description, 'pending'))
+        conn.commit()
     return render_template('report_problem.html')
-    
-# @app.route('/problems', method['GET','POST'])
-# def problem():
 
+@app.route('/problems', methods=['GET','POST'])
+def problem():
+    username = session.get('username')
+    if username != 'admin':
+        return redirect('/login')
+    if request.method == 'POST':
+        problem_id = request.form.get('problem_id')
+        new_status = request.form.get('new_status')
+        with sqlite3.connect('models/dormWEB.db') as conn:
+            con = conn.cursor()
+            con.execute("UPDATE Problem SET status = ? WHERE problem_id = ?", (new_status, problem_id))
+            con.execute("SELECT * FROM Problem")
+            problems = con.fetchall()
+    return render_template('problems.html', problems=problems)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -122,7 +122,7 @@ table_exists = c.fetchone()
 
 if not table_exists:
     # Create the Problem table
-    c.execute('''CREATE TABLE Problem
+    c.execute('''CREATE TABLE Problems
                  (problem_id INTEGER PRIMARY KEY AUTOINCREMENT,
                   user_id INTEGER,
                   room_id INTEGER,
