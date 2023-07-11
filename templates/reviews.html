@@ -11,8 +11,18 @@
 </div>
 
 <div class="text-center">
-    <button type="submit" class="btn btn-outline-secondary">Write Review</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('write_review') }}" role="button">Write Review</a>
 </div>
+
+{% if reviews %}
+    {% for review in reviews %}
+        <div class="shadow p-3 mb-5 bg-light rounded" style="margin: 20px 40px 0px 40px;">
+            {{ review['body'] }}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="displya-3">No Review</div>
+{% endif %}
 
 
 

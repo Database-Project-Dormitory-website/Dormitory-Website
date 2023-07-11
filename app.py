@@ -344,9 +344,18 @@ def register():
 def roomlists():
     return render_template('roomlists.html')
 
-@app.route('/reviews')
+@app.route('/reviews/')
 def reviews():
-    return render_template('reviews.html')
+    cur = mysql.connection.cursor()
+    queryStatement = f"SELECT * FROM reviews"
+    print(queryStatement)
+    result_value = cur.execute(queryStatement) 
+    if result_value > 0:
+        reviews = cur.fetchall()
+        return render_template('reviews.html', reviews=reviews)
+    else:
+        return render_template('reviews.html', reviews=None)
+    
 
 @app.route('/write-review/', methods=['GET', 'POST'])
 def write_review():
@@ -360,7 +369,7 @@ def write_review():
         body = review['body'] 
         cur = mysql.connection.cursor()
         queryStatement = (
-            f"INSERT INTO blog(username, body) "
+            f"INSERT INTO reviews(username, body) "
             f"VALUES('{username}', '{body}')"
         )
         print(queryStatement)
