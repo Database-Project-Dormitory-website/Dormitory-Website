@@ -1,3 +1,4 @@
+# from crypt import methods
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -6,6 +7,7 @@ import yaml
 
 app = Flask(__name__)
 app.secret_key = '1893'
+
 cred = yaml.load(open('cred.yaml'), Loader=yaml.Loader)
 app.config['MYSQL_HOST'] = cred['mysql_host']
 app.config['MYSQL_USER'] = cred['mysql_user']
@@ -264,6 +266,41 @@ def remove_guest():
         flash('Guest removed!', 'guest-rmv-success')
         return redirect(url_for('admindashboard'))
     
+
+@app.route('/login/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    elif request.method == 'POST':
+        loginForm = request.form
+        username = loginForm['username']
+        cur = mysql.connection.cursor()
+        queryStatement = f"SELECT * FROM user WHERE username = '{username}'"
+        numRow = cur.execute(queryStatement)
+        if numRow > 0:
+            user =  cur.fetchone()
+            if check_password_hash(user['password'], loginForm['password']):
+
+                # Record session information
+                session['login'] = True
+                session['username'] = user['username']
+                session['firstName'] = user['first_name']
+                session['lastName'] = user['last_name']
+                print(session['username'])
+                flash('Welcome ' + session['firstName'], 'success')
+                #flash("Log In successful",'success')
+                return redirect('/')
+            else:
+                cur.close()
+                flash("Password doesn't not match", 'danger')
+        else:
+            cur.close()
+            flash('User not found', 'danger')
+            return render_template('login.html')
+        cur.close()
+        return redirect('/')
+    return render_template('login.html')
+
     
 @app.route('/register/', methods=['GET', 'POST'])
 def register():
@@ -310,6 +347,30 @@ def roomlists():
 @app.route('/reviews')
 def reviews():
     return render_template('reviews.html')
+
+@app.route('/write-review/', methods=['GET', 'POST'])
+def write_review():
+    try:
+        username = session['username']
+    except:
+        flash('Please sign in first', 'danger')
+        return redirect('/login')
+    if request.method == 'POST':
+        review = request.form
+        body = review['body'] 
+        cur = mysql.connection.cursor()
+        queryStatement = (
+            f"INSERT INTO blog(username, body) "
+            f"VALUES('{username}', '{body}')"
+        )
+        print(queryStatement)
+        cur.execute(queryStatement)
+        mysql.connection.commit()
+        cur.close()
+        flash("Successfully posted", 'success')
+        return redirect('/')
+    return render_template('write-review.html')
+
 
 @app.route("/remove_menu_item", methods=['POST'])
 def remove_menu_item():
