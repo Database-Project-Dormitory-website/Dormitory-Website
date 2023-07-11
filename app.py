@@ -404,5 +404,11 @@ def add_menu_item():
         flash('New menu item added!', 'item-success')
     return redirect(url_for('admindashboard'))
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash("You have been logged out", 'info')
+    return redirect('/')
+
 if __name__ == "__main__":
     app.run(debug=True)
