@@ -309,13 +309,13 @@ def login():
                 return redirect('/')
             else:
                 cur.close()
-                flash("Password doesn't not match", 'danger')
+                flash("Password is incorrect", 'danger')
         else:
             cur.close()
             flash('User not found', 'danger')
             return render_template('login.html')
         cur.close()
-        return redirect('/')
+        return render_template('login.html')
     return render_template('login.html')
 
 
@@ -343,8 +343,8 @@ def register():
 
         queryStatement = (
             f"INSERT INTO "
-            f"user(first_name, last_name, username, email, phone_number, password) "
-            f"VALUES('{p1}', '{p2}', '{p3}', '{p4}', '{p6}', '{hashed_pw}')"
+            f"user(first_name, last_name, username, email, phone_number, password, role_id) "
+            f"VALUES('{p1}', '{p2}', '{p3}', '{p4}', '{p6}', '{hashed_pw}', {2})"
         )
         print(check_password_hash(hashed_pw, p5))
         print(queryStatement)
