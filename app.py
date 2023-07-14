@@ -6,7 +6,6 @@ import sqlite3
 import yaml
 
 app = Flask(__name__)
-app.secret_key = '1893'
 
 cred = yaml.load(open('cred.yaml'), Loader=yaml.Loader)
 app.config['MYSQL_HOST'] = cred['mysql_host']
