@@ -1,4 +1,5 @@
 # from crypt import methods
+from asyncio.windows_events import NULL
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -6,6 +7,7 @@ import sqlite3
 import yaml
 
 app = Flask(__name__)
+app.secret_key = '1893'
 
 cred = yaml.load(open('cred.yaml'), Loader=yaml.Loader)
 app.config['MYSQL_HOST'] = cred['mysql_host']
@@ -172,22 +174,6 @@ def bookroom():
     return render_template("bookroom.html", rooms=room_list)
 
 
-@app.route("/auth_admin", methods=["POST"])
-def auth_admin():
-    # c = conn.cursor()
-    admin_id = request.form["id"]
-    admin_password = request.form["password"]
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT * FROM admin WHERE id=? AND password=?", (admin_id, admin_password))
-        admin = con.fetchone()
-        print(admin)
-    if admin:
-        return redirect(url_for("admindashboard"))
-    else:
-        return redirect(url_for("adminlogin"))
-
-
 @app.route("/admindashboard", methods=['GET', 'POST'])
 def admindashboard():
     with sqlite3.connect('models/dormWEB.db') as conn:
@@ -239,22 +225,6 @@ def admindashboard():
 
     return render_template("admindashboard.html", room_requests=room_requests, current_guests=current_guests,
                            current_menu=current_menu)
-
-
-@app.route("/rejectrequest", methods=['POST'])
-def rejectrequest():
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        if request.method == 'POST':
-            room_id = request.form['room_id']
-            guest_name = request.form['guest_name']
-            checkout_date = request.form['checkout_date']
-
-            con.execute("DELETE FROM roomrequests WHERE roomid = ?", (room_id))
-            roomreqs = con.fetchone()
-
-            flash('Room request rejected!', 'room-success')
-            return redirect(url_for('admindashboard'))
 
 
 @app.route("/remove_guest", methods=['POST'])
@@ -318,6 +288,14 @@ def register():
     elif request.method == 'POST':
         userDetails = request.form
 
+        queryStatement = f"SELECT * FROM user"
+        cur = mysql.connection.cursor()
+        numRow = cur.execute(queryStatement)
+        if numRow > 0:
+            user = cur.fetchone()
+            if userDetails['username'] in user['username']:
+                flash('This username isn\'t available. Please try another.', 'danger')
+                return render_template('register.html')
         # Check the password and confirm password
         if userDetails['password'] != userDetails['confirm_password']:
             flash('Passwords do not match!', 'danger')
@@ -373,7 +351,7 @@ def write_review():
     try:
         username = session['username']
     except:
-        flash('Please sign in first', 'danger')
+        flash('Please sign in first.', 'danger')
         return redirect('/login')
     if request.method == 'POST':
         review = request.form
@@ -419,9 +397,15 @@ def add_menu_item():
 
 @app.route('/logout')
 def logout():
-    session.clear()
-    flash("You have been logged out", 'info')
-    return redirect('/')
+    try:
+        session['username']
+        session.clear()
+        flash("You have been logged out", 'info')
+        return redirect('/')
+
+    except:
+        flash('Please sign in first.', 'danger')
+        return redirect('/')
 
 
 @app.route('/delete-review/<int:id>/')

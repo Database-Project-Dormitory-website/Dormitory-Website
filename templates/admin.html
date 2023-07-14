@@ -1,29 +1,31 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div>
+<div class="text-center">
     <h1>HELLO ADMIN</h1>
 </div>
 
-<div>
-    <table class="table table-bordered" style="background-color: white;">
-        <thead>
-            <tr>
-                <th>ROOM NUMBER</th>
-                <th>TEST</th>
-            </tr>
-        </thead>
-        {% if rooms %}
-            {% for room in rooms %}
-                <tbody>
-                    <tr>
-                        <td>{{ room['room_number'] }}</td>
-                        <td>testing</td>
-                    </tr>
-                </tbody>
-            {% endfor %}
-        {% endif %}
-    </table>
+<div class="d-flex justify-content-center">
+    <div class="text-center" style="width: 800px;">
+        <table class="table table-bordered">
+            <thead style="background-color:aliceblue;">
+                <tr>
+                    <th class="col-4">ROOM NUMBER</th>
+                    <th class="col-4">TENANT</th>
+                </tr>
+            </thead>
+            {% if rooms %}
+                {% for room in rooms %}
+                    <tbody style="background-color:rgb(253, 231, 235);">
+                        <tr>
+                            <td>{{ room['room_number'] }}</td>
+                            <td>testing</td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
 </div>
 
 {% endblock %}
