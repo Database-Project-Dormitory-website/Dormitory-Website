@@ -31,11 +31,6 @@ def guest():
     return render_template("guest.html")
 
 
-@app.route("/guestlogin")
-def guestlogin():
-    return render_template("guestlogin.html")
-
-
 @app.route("/auth_guest", methods=["POST"])
 def auth_guest():
     guest_name = request.form["name"]
@@ -178,11 +173,6 @@ def bookroom():
     return render_template("bookroom.html", rooms=room_list)
 
 
-@app.route("/adminlogin")
-def adminlogin():
-    return render_template("adminlogin.html")
-
-
 @app.route("/auth_admin", methods=["POST"])
 def auth_admin():
     # c = conn.cursor()
@@ -297,12 +287,15 @@ def login():
         if numRow > 0:
             user = cur.fetchone()
             if check_password_hash(user['password'], loginForm['password']):
-
                 # Record session information
                 session['login'] = True
                 session['username'] = user['username']
                 session['firstName'] = user['first_name']
                 session['lastName'] = user['last_name']
+
+                if user['role_id'] == 1:
+                    return render_template('admin.html')
+                
                 print(session['username'])
                 flash('Welcome ' + session['firstName'], 'success')
                 # flash("Log In successful",'success')
@@ -492,6 +485,10 @@ def problem():
             con.execute("SELECT * FROM Problem")
             problems = con.fetchall()
     return render_template('problems.html', problems=problems)
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin():
+    return render_template('admin.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
