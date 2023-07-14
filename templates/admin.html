@@ -5,4 +5,25 @@
     <h1>HELLO ADMIN</h1>
 </div>
 
+<div>
+    <table class="table table-bordered" style="background-color: white;">
+        <thead>
+            <tr>
+                <th>ROOM NUMBER</th>
+                <th>TEST</th>
+            </tr>
+        </thead>
+        {% if rooms %}
+            {% for room in rooms %}
+                <tbody>
+                    <tr>
+                        <td>{{ room['room_number'] }}</td>
+                        <td>testing</td>
+                    </tr>
+                </tbody>
+            {% endfor %}
+        {% endif %}
+    </table>
+</div>
+
 {% endblock %}

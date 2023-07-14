@@ -294,7 +294,7 @@ def login():
                 session['lastName'] = user['last_name']
 
                 if user['role_id'] == 1:
-                    return render_template('admin.html')
+                    return redirect('/admin')
                 
                 print(session['username'])
                 flash('Welcome ' + session['firstName'], 'success')
@@ -488,7 +488,15 @@ def problem():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    return render_template('admin.html')
+    cur = mysql.connection.cursor()
+    queryStatement = f"SELECT * FROM rooms"
+    print(queryStatement)
+    result_value = cur.execute(queryStatement)
+    if result_value > 0:
+        rooms = cur.fetchall()
+        return render_template('admin.html', rooms=rooms)
+    else:
+        return render_template('admin.html', rooms=None)
 
 if __name__ == "__main__":
     app.run(debug=True)
