@@ -472,7 +472,11 @@ def problem():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     cur = mysql.connection.cursor()
-    queryStatement = f"SELECT * FROM rooms"
+    queryStatement = (
+        f"SELECT u.first_name, u.last_name, u.email, u.phone_number, c.start, c.end, "
+        f"(SELECT room_number FROM rooms WHERE contract_id = c.contract_id) AS room_number "
+        f"FROM user AS u JOIN contracts c ON u.user_id = c.user_id"
+    )
     print(queryStatement)
     result_value = cur.execute(queryStatement)
     if result_value > 0:
@@ -480,6 +484,9 @@ def admin():
         return render_template('admin.html', rooms=rooms)
     else:
         return render_template('admin.html', rooms=None)
+    
+# @app.route('/contract_name/<int:id>/')
+# def contract
 
 if __name__ == "__main__":
     app.run(debug=True)
