@@ -1,25 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<!-- <div class="text-center">
-    <h1>HELLO ADMIN</h1>
-</div> -->
+<div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
+    <h2>CONTRACTS</h2>
+</div>
 
 <div class="d-flex justify-content-center">
-    <div class="text-center" style="width: 1200px; margin-top: 80px;">
+    <div class="text-center" style="width: 1200px">
         <table class="table table-bordered">
             <thead style="background-color:aliceblue;">
                 <tr>
-                    <th class="col-3">ROOM NUMBER</th>
-                    <th class="col-3">CONTRACT NAME</th>
-                    <th class="col-3">CONTRACT START</th>
-                    <th class="col-3">CONTRACT END</th>
+                    <th class="col-2">ROOM TYPE</th>
+                    <th class="col-2">ROOM NUMBER</th>
+                    <th class="col-2">CONTRACT NAME</th>
+                    <th class="col-2">CONTRACT START</th>
+                    <th class="col-2">CONTRACT END</th>
                 </tr>
             </thead>
             {% if rooms %}
                 {% for room in rooms %}
                     <tbody style="background-color:rgb(253, 231, 235);">
                         <tr>
+                            <td>{{ room['room_type'].upper() }}</td>
                             <td>{{ room['room_number'] }}</td>
                             <td>{{ room['first_name'] }} {{ room['last_name'] }}</td>
                             <td>{{ room['start'] }}</td>
@@ -31,5 +33,37 @@
         </table>
     </div>
 </div>
+
+<div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
+    <h2>AVAILABLE ROOMS</h2>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="text-center" style="width: 800px;">
+        <table class="table table-bordered">
+            <thead style="background-color:aliceblue;">
+                <tr>
+                    <th>ROOM NUMBER</th>
+                    <th>ROOM TYPE</th>
+                </tr>
+            </thead>
+            {% if empty_rooms %}
+                {% for room in empty_rooms %}
+                    <tbody style="background-color:rgb(253, 231, 235);">
+                        <tr>
+                            <td>{{ room['room_number'] }}</td>
+                            <td>{{ room['room_type'] }}</td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+</div>
+
+<div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
+    <h2>PROBLEMS REPORT</h2>
+</div>
+
 
 {% endblock %}

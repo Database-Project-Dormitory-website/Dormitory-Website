@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking Calendar</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Booking Calendar</h1>
+    <input type="text" id="datepicker" class="form-control">
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      var minDate = new Date();
+      minDate.setMonth(minDate.getMonth() + 1);
+      
+      var maxDate = new Date(minDate.getFullYear(), minDate.getMonth() + 6, 0);
+
+      $("#datepicker").datepicker({
+        dateFormat: "yy-mm-dd",
+        minDate: minDate,
+        maxDate: maxDate,
+        onSelect: function(dateText) {
+          console.log("Booking date: " + dateText);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+{% endblock %}

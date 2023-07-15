@@ -174,75 +174,6 @@ def bookroom():
     return render_template("bookroom.html", rooms=room_list)
 
 
-@app.route("/admindashboard", methods=['GET', 'POST'])
-def admindashboard():
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT roomid, guestname, checkoutdate FROM roomrequests")
-        room_requests = con.fetchall()
-        print("here", room_requests)
-
-        # Fetch current guests
-        con.execute(
-            "SELECT guests.name, room.id, guests.id FROM guests JOIN room ON guests.id = room.guestid WHERE room.availability = 1")
-        current_guests = con.fetchall()
-        print(current_guests)
-
-        # Fetch current menu items
-        con.execute("SELECT id, itemname, itemprice FROM menu")
-        current_menu = con.fetchall()
-        # new
-        if request.method == 'POST':
-            room_id = request.form['room_id']
-            guest_name = request.form['guest_name']
-            checkout_date = request.form['checkout_date']
-
-            con.execute("SELECT roomid, guestname, checkoutdate, gpassword FROM roomrequests WHERE roomid = ?",
-                        (room_id))
-            roomreqs = con.fetchone()
-            print(roomreqs)
-            con.execute("SELECT price FROM room WHERE id = ?", (room_id))
-            roomprice = con.fetchone()
-            print(roomprice)
-
-            con.execute("INSERT INTO guests (name, password) VALUES (?, ?)", (roomreqs[1], roomreqs[3]))
-
-            con.execute("SELECT id, bill, balance FROM guests WHERE (name = ?) AND (password = ?)",
-                        (roomreqs[1], roomreqs[3]))
-            gid = con.fetchone()
-            print(gid)
-
-            con.execute("UPDATE guests SET bill = ?, balance = ? WHERE id = ?",
-                        (gid[1] + roomprice[0], gid[2] - roomprice[0], gid[0]))
-
-            con.execute("UPDATE room SET availability = ?, guestid = ? WHERE id = ?", (1, gid[0], room_id))
-            con.execute("DELETE FROM roomrequests WHERE roomid = ?", (room_id,))
-            conn.commit()
-
-            flash('Room request accepted!', 'room-success')
-            return redirect(url_for('admindashboard'))
-        # end new
-
-    return render_template("admindashboard.html", room_requests=room_requests, current_guests=current_guests,
-                           current_menu=current_menu)
-
-
-@app.route("/remove_guest", methods=['POST'])
-def remove_guest():
-    guest_id = request.form['guest_id']
-    print(guest_id)
-
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        guest_id = request.form['guest_id']
-        con.execute("UPDATE room SET availability = ?, guestid = NULL WHERE guestid = ?", (0, guest_id))
-        con.execute("DELETE FROM guests WHERE id = ?", (guest_id,))
-        conn.commit()
-
-        flash('Guest removed!', 'guest-rmv-success')
-        return redirect(url_for('admindashboard'))
-
-
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -472,21 +403,36 @@ def problem():
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     cur = mysql.connection.cursor()
+    curr = mysql.connection.cursor()
     queryStatement = (
-        f"SELECT u.first_name, u.last_name, u.email, u.phone_number, c.start, c.end, "
-        f"(SELECT room_number FROM rooms WHERE contract_id = c.contract_id) AS room_number "
-        f"FROM user AS u JOIN contracts c ON u.user_id = c.user_id"
+        f"SELECT u.first_name, u.last_name, u.email, u.phone_number, "
+        f"c.start, c.end, r.room_number, rt.room_type "
+        f"FROM user AS u "
+        f"JOIN contracts AS c on u.user_id = c.user_id "
+        f"JOIN rooms AS r on c.contract_id = r.contract_id "
+        f"JOIN roomtype AS rt on r.room_type_id = rt.room_type_id"
+    )
+    queryStatement1 = (
+        f"SELECT room_number, "
+        f"(SELECT room_type FROM roomtype WHERE room_type_id = rooms.room_type_id) AS room_type "
+        f"FROM rooms WHERE contract_id IS NULL"
     )
     print(queryStatement)
+    print(queryStatement1)
     result_value = cur.execute(queryStatement)
-    if result_value > 0:
+    result_value1 = curr.execute(queryStatement1)
+    if result_value > 0 and result_value1 > 0:
         rooms = cur.fetchall()
-        return render_template('admin.html', rooms=rooms)
-    else:
+        empty_rooms = curr.fetchall()
+        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms)
+    elif result_value <= 0:
         return render_template('admin.html', rooms=None)
+    elif result_value1 <= 0:
+        return render_template('admin.html', empty_rooms=None)
     
-# @app.route('/contract_name/<int:id>/')
-# def contract
+@app.route('/calendar')
+def calendar():
+    return render_template('profile.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
