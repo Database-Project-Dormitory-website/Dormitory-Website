@@ -32,51 +32,6 @@ def guest():
     return render_template("guest.html")
 
 
-@app.route("/auth_guest", methods=["POST"])
-def auth_guest():
-    guest_name = request.form["name"]
-    guest_password = request.form["password"]
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT * FROM guests WHERE name=? AND password=?", (guest_name, guest_password))
-        guest = con.fetchone()
-        print(guest)
-    if guest:
-        session['user_id'] = guest[0]  # Set the user_id session variable to the guest's ID
-        return redirect(url_for("guestdashboard"))
-    else:
-        return redirect(url_for("guestlogin"))
-
-
-@app.route("/guestdashboard", methods=['GET', 'POST'])
-def guestdashboard():
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT id, itemname, itemprice FROM menu")
-        menu_items = con.fetchall()
-        # Fetch room and guest details
-        con.execute(
-            "SELECT room.id, room.price, guests.id, guests.balance, guests.bill FROM room JOIN guests ON room.guestid = guests.id WHERE guests.id=?",
-            (session["user_id"],))
-        rows = con.fetchall()
-
-    return render_template("guestdashboard.html", menu_items=menu_items, rows=rows)
-
-
-@app.route("/order_item", methods=['POST'])
-def order_item():
-    item_id = request.form['item_id']
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT itemprice FROM menu WHERE id=?", (item_id,))
-        item_price = con.fetchone()[0]
-        con.execute("UPDATE guests SET bill = bill + ? WHERE id=?", (item_price, session["user_id"]))
-        conn.commit()
-        flash("Item ordered successfully", "item-order-success")
-
-    return redirect(url_for("guestdashboard"))
-
-
 @app.route("/pay_bill", methods=['POST'])
 def pay_bill():
     amount_paid = float(request.form['amount'])
@@ -98,29 +53,6 @@ def pay_bill():
             flash("Bill updated successfully", "amt-success")
 
     return redirect(url_for("guestdashboard"))
-
-
-@app.route("/roomtable", methods=["GET", "POST"])
-def roomtable():
-    # Get the list of available rooms
-    # conn = sqlite3.connect('models/dormWEB.db')
-    # con = conn.cursor()
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT id, price FROM room WHERE availability = 0")
-        rooms = con.fetchall()
-        print(rooms)
-
-    available_rooms = rooms
-    room_list = []
-    for room in available_rooms:
-        room_dict = {}
-        room_dict["id"] = room[0]
-        room_dict["price"] = room[1]
-        room_list.append(room_dict)
-
-    # Render the booking form
-    return render_template("bookroom.html", rooms=room_list)
 
 
 @app.route("/bookroom", methods=["GET", "POST"])
@@ -297,7 +229,7 @@ def write_review():
         mysql.connection.commit()
         cur.close()
         flash("Successfully posted", 'success')
-        return redirect('/')
+        return redirect('/reviews')
     return render_template('write-review.html')
 
 
@@ -352,7 +284,7 @@ def delete_review(id):
     cur.execute(review_user)
     user = cur.fetchall()
 
-    if (user[0]['username'] == session['username']):
+    if (user[0]['username'] == username):
         queryStatement = f"DELETE FROM reviews WHERE review_id = {id}"
         print(queryStatement)
         cur.execute(queryStatement)
