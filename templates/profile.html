@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+
 {% block content %}
 
 <!DOCTYPE html>
@@ -7,11 +8,42 @@
   <title>Booking Calendar</title>
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      margin-bottom: 10px;
+    }
+
+    #priceDisplay {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Booking Calendar</h1>
-    <input type="text" id="datepicker" class="form-control">
+    <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
+    <input type="text" id="nameInput" class="form-control" placeholder="Your Name">
+    <select id="bedTypeSelect" class="form-control">
+      <option value="single">Single Bed</option>
+      <option value="double">Double Bed</option>
+    </select>
+    <select id="contractDurationSelect" class="form-control">
+      <option value="6months">6 Months</option>
+      <option value="1year">1 Year</option>
+    </select>
+    <p id="priceDisplay"></p>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -32,11 +64,41 @@
           console.log("Booking date: " + dateText);
         }
       });
+
+      $("#datepicker, #nameInput, #bedTypeSelect, #contractDurationSelect").change(function() {
+        var selectedDate = $("#datepicker").val();
+        var name = $("#nameInput").val();
+        var bedType = $("#bedTypeSelect").val();
+        var contractDuration = $("#contractDurationSelect").val();
+
+        if (selectedDate && name && bedType && contractDuration) {
+          console.log("Registration Successful");
+          console.log("Bed Type: " + bedType);
+          console.log("Contract Duration: " + contractDuration);
+
+          var price = 0;
+          if (bedType === "single") {
+            if (contractDuration === "6months") {
+              price = 8000;
+            } else if (contractDuration === "1year") {
+              price = 6000;
+            }
+          } else if (bedType === "double") {
+            if (contractDuration === "6months") {
+              price = 12000;
+            } else if (contractDuration === "1year") {
+              price = 10000;
+            }
+          }
+
+          $("#priceDisplay").text("Price: " + price + " THB");
+        } else {
+          console.log("Please fill in all fields");
+        }
+      });
     });
   </script>
 </body>
 </html>
-
-
 
 {% endblock %}
