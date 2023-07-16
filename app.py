@@ -1,4 +1,4 @@
-# from crypt import methods
+
 from asyncio.windows_events import NULL
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -25,89 +25,6 @@ con = conn.cursor()
 @app.route("/")
 def index():
     return render_template("index.html")
-
-
-@app.route("/profile.html")
-def profile():
-    return render_template("profile.html")
-
-@app.route("/guest")
-def guest():
-    return render_template("guest.html")
-
-
-@app.route("/pay_bill", methods=['POST'])
-def pay_bill():
-    amount_paid = float(request.form['amount'])
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT balance, bill FROM guests WHERE id=?", (session["user_id"],))
-        guest_info = con.fetchone()
-        balance = guest_info[0]
-        current_bill = guest_info[1]
-        if amount_paid > current_bill:
-            flash("Amount paid cannot be greater than the current bill", "amt-danger")
-        elif amount_paid > balance:
-            flash("Amount paid cannot be greater than the available balance", "danger")
-        else:
-            new_balance = balance - amount_paid
-            new_bill = current_bill - amount_paid
-            con.execute("UPDATE guests SET balance = ?, bill=? WHERE id=?", (new_balance, new_bill, session["user_id"]))
-            conn.commit()
-            flash("Bill updated successfully", "amt-success")
-
-    return redirect(url_for("guestdashboard"))
-
-
-@app.route("/bookroom", methods=["GET", "POST"])
-def bookroom():
-    # Get the list of available rooms
-    # conn = sqlite3.connect('models/dormWEB.db')
-    # con = conn.cursor()
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("SELECT id, price FROM room WHERE availability = 0")
-        rooms = con.fetchall()
-        print(rooms)
-
-    available_rooms = rooms
-    room_list = []
-    for room in available_rooms:
-        room_dict = {}
-        room_dict["id"] = room[0]
-        room_dict["price"] = room[1]
-        room_list.append(room_dict)
-
-    if request.method == "POST":
-        # Handle form submission
-        room_ids = request.form.getlist("room_id[]")
-        # print("printing room ids",room_ids)
-        name = request.form["name"]
-        # print(name)
-        password = request.form["password"]
-        # print(password)
-        checkout = request.form["checkout"]
-        # print(checkout)
-
-        # Create a new bookingrequest in the database
-        # conn = sqlite3.connect('models/dormWEB.db')
-        # co = conn.cursor()
-
-        with sqlite3.connect('models/dormWEB.db') as conn:
-            con = conn.cursor()
-            for rid in room_ids:
-                con.execute("INSERT INTO roomrequests (roomid, guestname, checkoutdate, gpassword) VALUES (?, ?, ?, ?)",
-                            (rid, name, checkout, password))
-
-            con.execute("SELECT * FROM roomrequests")
-            result = con.fetchall()
-            print(result)
-
-        # Display a confirmation message to the user
-        flash("Your booking has been submitted!", "booking-success")
-        return redirect(url_for("bookroom"))
-    # Render the bookroom template with the room information
-    return render_template("bookroom.html", rooms=room_list)
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -366,9 +283,25 @@ def admin():
     elif result_value1 <= 0:
         return render_template('admin.html', empty_rooms=None)
     
-@app.route('/calendar')
-def calendar():
-    return render_template('profile.html')
+@app.route('/booking')
+def booking():
+    return render_template('booking.html')
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    try:
+        username = session['username']
+    except:
+        flash('Please sign in first', 'danger')
+        return redirect('/login')
+    
+    cur = mysql.connection.cursor()
+    queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
+    user_profile = cur.execute(queryStatement)
+    print(user_profile)
+    if user_profile > 0:
+        user = cur.fetchone()
+        return render_template('profile.html', user=user)
 
 if __name__ == "__main__":
     app.run(debug=True)
