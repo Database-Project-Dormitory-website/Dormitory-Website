@@ -3,17 +3,19 @@
 {% block content %}
 
 
-<div class="container mt-5">
+<div style="background-color: rgba(245, 242, 242, 0.963); padding-top: 60px;">
   <div class="row justify-content-center">
-    <div class="col-md-6">
-      <h1 class="text-center mb-5">Welcome to Our Dormitory</h1>
-      <p class="lead text-center">Experience comfortable and affordable living in our modern dormitory facilities.</p>
+    <div>
+      <h1 class="text-center">Welcome to Our Dormitory</h1>
+    </div>
+    <div class="lead text-center" style="margin-top: 20px; margin-bottom: 30px;">
+      <p>Experience comfortable and affordable living in our modern dormitory facilities.</p>
     </div>
   </div>
 </div>
 
 <!-- Slideshow -->
-<div class="row justify-content-center">
+<div class="row justify-content-center" style="padding-bottom: 60px; background-color: rgba(245, 242, 242, 0.963);">
   <div class="col-md-8" style="width: 700px;">
     <div id="carouselExampleIndicators" class="carousel carousel-dark slide border border-dark" data-bs-ride="carousel">
       <div class="carousel-indicators">
@@ -52,14 +54,11 @@
   </div>
 </div>
 
-<hr>
-
-
-<section id="book-a-room" class="container mt-5">
+<section id="book-a-room" style="padding-bottom: 50px; padding-top: 50px; background-color: aliceblue;">
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-5 text-center">
       
-      <h2 class="text-center mb-4">Book a Room</h5>
+      <h2 class="text-center">Book a Room</h5>
       <ul class="list-group">
         <li class="list-group-item">
           <i class="bi bi-calendar-event-fill"></i> Availability: Check the dorm room availability and book your room.
@@ -72,21 +71,18 @@
         </li>
       </ul>
       <div class="text-center mt-4">
-        <a href="{{ url_for('booking') }}" class="btn btn-primary">Book a Room</a>
+        <a href="{{ url_for('booking') }}" class="btn btn-outline-danger">Book a Room</a>
       </div>
     </div>
   </div>
 </section>
 
-
-<hr>
-
-<section id="contact" class="container mt-5">
+<section id="contact" style="padding-bottom: 60px; padding-top: 50px; background-color: rgb(253, 231, 235);">
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-4">
       
       <h2 class="text-center mb-4">Contact Information</h5>
-        <ul class="list-group">
+        <ul class="list-group text-center">
           <li class="list-group-item">
             <i class="bi bi-geo-alt-fill"></i> Address: 123 Main Street, City, Country
           </li>
@@ -98,7 +94,7 @@
           </li>
         </ul>
         <div class="text-center mt-4">
-          <a href="mailto:info@dormitorywebsite.com" class="btn btn-primary">Send Email</a>
+          <a href="mailto:info@dormitorywebsite.com" class="btn btn-outline-danger">Send Email</a>
         </div>
       </div>
     </div>

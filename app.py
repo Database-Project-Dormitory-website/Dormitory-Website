@@ -19,9 +19,6 @@ app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 mysql = MySQL(app)
 
 
-conn = sqlite3.connect('models/dormWEB.db')
-con = conn.cursor()
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -154,31 +151,6 @@ def write_review():
     return render_template('write-review.html')
 
 
-@app.route("/remove_menu_item", methods=['POST'])
-def remove_menu_item():
-    item_id = request.form['item_id']
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("DELETE FROM menu WHERE id = ?", (item_id,))
-        conn.commit()
-        flash('Menu item removed!', 'item-success')
-    return redirect(url_for('admindashboard'))
-
-
-@app.route("/add_menu_item", methods=['POST'])
-def add_menu_item():
-    item_name = request.form['itemname']
-    print(item_name)
-    item_price = request.form['itemprice']
-    print(item_price)
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("INSERT INTO menu (itemname, itemprice) VALUES (?, ?)", (item_name, item_price))
-        conn.commit()
-        flash('New menu item added!', 'item-success')
-    return redirect(url_for('admindashboard'))
-
-
 @app.route('/logout')
 def logout():
     try:
@@ -238,6 +210,7 @@ def report_problem():
         conn.commit()
     return render_template('report_problem.html')
 
+
 @app.route('/problems', methods=['GET','POST'])
 def problem():
     username = session.get('username')
@@ -252,6 +225,7 @@ def problem():
             con.execute("SELECT * FROM Problem")
             problems = con.fetchall()
     return render_template('problems.html', problems=problems)
+
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
