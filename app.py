@@ -259,6 +259,11 @@ def admin():
     
 @app.route('/booking')
 def booking():
+    try:
+        username = session['username']
+    except:
+        flash('Please sign in first', 'danger')
+        return redirect('/login')
     return render_template('booking.html')
 
 @app.route('/profile', methods=['GET', 'POST'])

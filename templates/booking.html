@@ -17,7 +17,7 @@ h1 {
 }
 
 .form-control {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 #priceDisplay {
@@ -26,26 +26,36 @@ h1 {
 }
 </style>
 
-  <div class="container">
-    <h1>Booking Calendar</h1>
-    <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
-    <input type="text" id="nameInput" class="form-control" placeholder="Your Name">
-    <select id="bedTypeSelect" class="form-control">
-      <option value="single">Single Bed</option>
-      <option value="double">Double Bed</option>
-    </select>
-    <select id="contractDurationSelect" class="form-control">
-      <option value="6months">6 Months</option>
-      <option value="1year">1 Year</option>
-    </select>
-    <p id="priceDisplay"></p>
-  </div>
+<div class="row justify-content-center">
+    <div class="text-center col-md-4">
+        <h1 class="text-center" style="margin-top: 100px;">Check for available rooms</h1>
+        <form method="POST">
+            <div>
+                <label for="datepicker" class="form-label"></label>
+                <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
+            </div>
+            <div>
+                <select id="bedTypeSelect" class="form-control">
+                    <option value="r1">Single Bed</option>
+                    <option value="r2">Double Bed</option>
+                </select>
+                <select id="contractDurationSelect" class="form-control">
+                    <option value="s1">6 Months</option>
+                    <option value="s2">1 Year</option>
+                </select>
+            </div>
+            <div class="text-center" style="margin-top: 30px;">
+                <button type="submit" class="btn btn-outline-danger">Confirm</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script>
-    
+
 $(document).ready(function() {
     var minDate = new Date();
     minDate.setMonth(minDate.getMonth() + 1);
@@ -61,9 +71,8 @@ $(document).ready(function() {
     }
     });
 
-    $("#datepicker, #nameInput, #bedTypeSelect, #contractDurationSelect").change(function() {
+    $("#datepicker, #bedTypeSelect, #contractDurationSelect").change(function() {
     var selectedDate = $("#datepicker").val();
-    var name = $("#nameInput").val();
     var bedType = $("#bedTypeSelect").val();
     var contractDuration = $("#contractDurationSelect").val();
 
