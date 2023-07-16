@@ -27,6 +27,10 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/profile.html")
+def profile():
+    return render_template("profile.html")
+
 @app.route("/guest")
 def guest():
     return render_template("guest.html")
