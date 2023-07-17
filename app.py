@@ -1,10 +1,6 @@
 
-<<<<<<< HEAD
 from asyncio.windows_events import NULL
 from datetime import datetime
-=======
-#from asyncio.windows_events import NULL
->>>>>>> 05205c432ff8c3076cab4b619a820775b5710fbb
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -267,6 +263,7 @@ def admin():
 def booking():
     try:
         username = session['username']
+
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
@@ -276,6 +273,9 @@ def booking():
         date_ = booking['datepicker']
         bedtype = booking['bedTypeSelect']
         contract = booking['contractDurationSelect']
+        if not date_:
+            flash('Please select move in date', 'danger')
+            return redirect('/booking')
         cur = mysql.connection.cursor()
         curr = mysql.connection.cursor()
         queryStatement = f"""SELECT * FROM rooms WHERE room_type_id = '{bedtype}'"""
@@ -301,6 +301,7 @@ def booking():
             flash('YAYYYY', 'success')
             return render_template('booking.html', bookings=bookings)
     return render_template('booking.html')
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
