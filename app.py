@@ -277,16 +277,21 @@ def booking():
         que = f"SELECT user_id FROM user WHERE username = '{username}'"
         currr.execute(que)
         user = currr.fetchall()
-        print(user)
-        print(f"contract type: {contract}")
         if not date_:
             flash('Please select move in date', 'danger')
             return redirect('/booking')
         cur = mysql.connection.cursor()
         curr = mysql.connection.cursor()
+        ccur = mysql.connection.cursor()
         queryStatement = f"""SELECT * FROM rooms WHERE room_type_id = '{bedtype}'"""
         booking_list = cur.execute(queryStatement)
         print(booking_list)
+        queryStatement2 = (
+            f"SELECT contract_type_id, price FROM contracttype "
+            f"WHERE contract_length_id = '{contract}' AND room_type_id = '{bedtype}'"
+        )
+        ccur.execute(queryStatement2)
+        contract_type = ccur.fetchone()
         if booking_list > 0:
             booking = cur.fetchall()
             bookings = []
@@ -296,6 +301,8 @@ def booking():
                     t = datetime.strptime(date_, '%Y-%m-%d').date()
                     bk['selected_date'] = t.strftime('%Y-%m-%d')
                     bk['user_id'] = user[0]['user_id']
+                    bk['contract_type_id'] = contract_type['contract_type_id']
+                    bk['price'] = contract_type['price']
                     bookings.append(bk)
                 else:
                     queryStatement1 = (
@@ -310,6 +317,8 @@ def booking():
                             t = datetime.strptime(date_, '%Y-%m-%d').date()
                             bk['selected_date'] = t.strftime('%Y-%m-%d')
                             bk['user_id'] = user[0]['user_id']
+                            bk['contract_type_id'] = contract_type['contract_type_id']
+                            bk['price'] = contract_type['price']
                             bookings.append(bk)
             print(bookings)
             flash('Successful.', 'success')
@@ -317,12 +326,47 @@ def booking():
     return render_template('booking.html')
 
 
-# @app.route('/reserve/<dict:booking>/', methods=['GET', 'POST'])
-# def reserve(booking):
-#     cur = mysql.connection.cursor()
-#     queryStatement = (
-#         f"SELECT "
-#     )
+@app.route('/reserve/<booking>/', methods=['GET', 'POST'])
+def reserve(booking):
+    cur = mysql.connection.cursor()
+    curr = mysql.connection.cursor()
+    booking = eval(booking)
+    print(booking)
+
+    if booking['contract_type'] == 's1':
+        queryStatement = (
+            f"INSERT INTO contracts (user_id, start, end, contract_type_id) "
+            f"VALUES ({booking['user_id']}, '{booking['selected_date']}', "
+            f"DATE_ADD('{booking['selected_date']}', INTERVAL 6 MONTH), "
+            f"'{booking['contract_type_id']}')"
+        )
+        cur.execute(queryStatement)
+        mysql.connection.commit()
+        cur.close()
+
+    else:
+        queryStatement1 = (
+            f"INSERT INTO contracts (user_id, start, end, contract_type_id) "
+            f"VALUES ({booking['user_id']}, '{booking['selected_date']}', "
+            f"DATE_ADD('{booking['selected_date']}', INTERVAL 1 YEAR), "
+            f"'{booking['contract_type_id']}')"
+        )
+        curr.execute(queryStatement1)
+        mysql.connection.commit()
+        curr.close()
+    ccur = mysql.connection.cursor()
+    queryStatement2 = f"SELECT contract_id FROM contracts WHERE user_id = {booking['user_id']}"
+    ccur.execute(queryStatement2)
+    contract_id = ccur.fetchone()
+
+    ccurr = mysql.connection.cursor()
+    queryStatement3 = f"UPDATE rooms SET contract_id = {contract_id['contract_id']} WHERE room_number = {booking['room_number']}"
+    ccurr.execute(queryStatement3)
+    mysql.connection.commit()
+    ccurr.close()
+
+    flash('Successfully booked the room', 'success')
+    return redirect('/booking')
 
 
 
