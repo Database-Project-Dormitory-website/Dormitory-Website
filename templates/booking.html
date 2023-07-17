@@ -27,19 +27,36 @@ h1 {
 </style>
 
 <div class="row justify-content-center">
-    <div class="text-center col-md-4">
+    <div class="col-md-4">
         <h1 class="text-center" style="margin-top: 100px;">Check for available rooms</h1>
+        <!-- <form method="POST">
+            <div class="mb-3">
+                <label for="datepicker" class="form-label">Select move in date:</label>
+                <input type="date" class="form-control" id="datepicker" name="datepicker" />
+            </div>
+            <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" />
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-outline-danger">Submit</button>
+            </div>
+        </form> -->
         <form method="POST">
             <div>
-                <label for="datepicker" class="form-label"></label>
-                <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
+                <label for="datepicker" class="form-label">Select move in date:</label>
+                <input type="text" id="datepicker" class="form-control" placeholder="Select a date" name="datepicker">
             </div>
             <div>
-                <select id="bedTypeSelect" class="form-control">
+                <label for="bedTypeSelect" class="form-label">Select bed type:</label>
+                <select id="bedTypeSelect" class="form-control" name="bedTypeSelect">
                     <option value="r1">Single Bed</option>
                     <option value="r2">Double Bed</option>
                 </select>
-                <select id="contractDurationSelect" class="form-control">
+            </div>
+            <div>
+                <label for="contractDurationSelect" class="form-label">Select contract type:</label>
+                <select id="contractDurationSelect" class="form-control" name="contractDurationSelect">
                     <option value="s1">6 Months</option>
                     <option value="s2">1 Year</option>
                 </select>
@@ -54,8 +71,8 @@ h1 {
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script>
 
+<script>
 $(document).ready(function() {
     var minDate = new Date();
     minDate.setMonth(minDate.getMonth() + 1);

@@ -1,10 +1,12 @@
 
 from asyncio.windows_events import NULL
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
 import sqlite3
 import yaml
+from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
 app.secret_key = '1893'
@@ -257,13 +259,43 @@ def admin():
     elif result_value1 <= 0:
         return render_template('admin.html', empty_rooms=None)
     
-@app.route('/booking')
+@app.route('/booking', methods=['GET','POST'])
 def booking():
     try:
         username = session['username']
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
+    
+    if request.method == 'POST':
+        booking = request.form
+        date_ = booking['datepicker']
+        bedtype = booking['bedTypeSelect']
+        contract = booking['contractDurationSelect']
+        cur = mysql.connection.cursor()
+        curr = mysql.connection.cursor()
+        queryStatement = f"""SELECT * FROM rooms WHERE room_type_id = '{bedtype}'"""
+        booking_list = cur.execute(queryStatement)
+        print(booking_list)
+        if booking_list > 0:
+            booking = cur.fetchall()
+            bookings = []
+            for bk in booking:
+                if bk['contract_id'] == None:
+                    bookings.append(bk)
+                else:
+                    queryStatement1 = (
+                        f"SELECT c.end FROM contracts AS c "
+                        f"JOIN rooms AS r ON c.contract_id = r.contract_id AND r.room_number = {bk['room_number']}"
+                    )
+                    checks = curr.execute(queryStatement1)
+                    if checks > 0:
+                        check = curr.fetchone()
+                        if (check['end'] + relativedelta(months=1)) < datetime.strptime(date_, '%Y-%m-%d').date():
+                            bookings.append(bk)
+            print(bookings)
+            flash('YAYYYY', 'success')
+            return render_template('booking.html', bookings=bookings)
     return render_template('booking.html')
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -279,7 +311,7 @@ def profile():
     user_profile = cur.execute(queryStatement)
     print(user_profile)
     if user_profile > 0:
-        user = cur.fetchone()
+        user = cur.fetchall()
         return render_template('profile.html', user=user)
 
 if __name__ == "__main__":
