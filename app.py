@@ -273,6 +273,12 @@ def booking():
         date_ = booking['datepicker']
         bedtype = booking['bedTypeSelect']
         contract = booking['contractDurationSelect']
+        currr = mysql.connection.cursor()
+        que = f"SELECT user_id FROM user WHERE username = '{username}'"
+        currr.execute(que)
+        user = currr.fetchall()
+        print(user)
+        print(f"contract type: {contract}")
         if not date_:
             flash('Please select move in date', 'danger')
             return redirect('/booking')
@@ -286,6 +292,10 @@ def booking():
             bookings = []
             for bk in booking:
                 if bk['contract_id'] == None:
+                    bk['contract_type'] = contract
+                    t = datetime.strptime(date_, '%Y-%m-%d').date()
+                    bk['selected_date'] = t.strftime('%Y-%m-%d')
+                    bk['user_id'] = user[0]['user_id']
                     bookings.append(bk)
                 else:
                     queryStatement1 = (
@@ -296,11 +306,24 @@ def booking():
                     if checks > 0:
                         check = curr.fetchone()
                         if (check['end'] + relativedelta(months=1)) < datetime.strptime(date_, '%Y-%m-%d').date():
+                            bk['contract_type'] = contract
+                            t = datetime.strptime(date_, '%Y-%m-%d').date()
+                            bk['selected_date'] = t.strftime('%Y-%m-%d')
+                            bk['user_id'] = user[0]['user_id']
                             bookings.append(bk)
             print(bookings)
-            flash('YAYYYY', 'success')
+            flash('Successful.', 'success')
             return render_template('booking.html', bookings=bookings)
     return render_template('booking.html')
+
+
+# @app.route('/reserve/<dict:booking>/', methods=['GET', 'POST'])
+# def reserve(booking):
+#     cur = mysql.connection.cursor()
+#     queryStatement = (
+#         f"SELECT "
+#     )
+
 
 
 @app.route('/profile', methods=['GET', 'POST'])
