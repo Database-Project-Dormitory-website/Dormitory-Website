@@ -1,6 +1,7 @@
-
 from asyncio.windows_events import NULL
 from datetime import datetime
+from datetime import date
+
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -24,6 +25,7 @@ mysql = MySQL(app)
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 
 @app.route('/login/', methods=['GET', 'POST'])
@@ -153,6 +155,7 @@ def write_review():
     return render_template('write-review.html')
 
 
+
 @app.route('/logout')
 def logout():
     try:
@@ -259,15 +262,14 @@ def admin():
     elif result_value1 <= 0:
         return render_template('admin.html', empty_rooms=None)
     
-@app.route('/booking', methods=['GET','POST'])
+@app.route('/booking', methods=['GET', 'POST'])
 def booking():
     try:
         username = session['username']
-
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
-    
+
     if request.method == 'POST':
         booking = request.form
         date_ = booking['datepicker']
@@ -276,10 +278,13 @@ def booking():
         currr = mysql.connection.cursor()
         que = f"SELECT user_id FROM user WHERE username = '{username}'"
         currr.execute(que)
-        user = currr.fetchall()
+        user = currr.fetchone()
         if not date_:
-            flash('Please select move in date', 'danger')
+            flash('Please select move-in date', 'danger')
             return redirect('/booking')
+       
+        session['booking_date'] = date_
+
         cur = mysql.connection.cursor()
         curr = mysql.connection.cursor()
         ccur = mysql.connection.cursor()
@@ -296,11 +301,10 @@ def booking():
             booking = cur.fetchall()
             bookings = []
             for bk in booking:
-                if bk['contract_id'] == None:
+                if bk['contract_id'] is None:
                     bk['contract_type'] = contract
-                    t = datetime.strptime(date_, '%Y-%m-%d').date()
-                    bk['selected_date'] = t.strftime('%Y-%m-%d')
-                    bk['user_id'] = user[0]['user_id']
+                    bk['selected_date'] = date_
+                    bk['user_id'] = user['user_id']
                     bk['contract_type_id'] = contract_type['contract_type_id']
                     bk['price'] = contract_type['price']
                     bookings.append(bk)
@@ -314,20 +318,19 @@ def booking():
                         check = curr.fetchone()
                         if (check['end'] + relativedelta(months=1)) < datetime.strptime(date_, '%Y-%m-%d').date():
                             bk['contract_type'] = contract
-                            t = datetime.strptime(date_, '%Y-%m-%d').date()
-                            bk['selected_date'] = t.strftime('%Y-%m-%d')
-                            bk['user_id'] = user[0]['user_id']
+                            bk['selected_date'] = date_
+                            bk['user_id'] = user['user_id']
                             bk['contract_type_id'] = contract_type['contract_type_id']
                             bk['price'] = contract_type['price']
                             bookings.append(bk)
             print(bookings)
             flash('Successful.', 'success')
-            return render_template('booking.html', bookings=bookings)
+            return render_template('booking.html', bookings=bookings, selected_date=date_)
+
     return render_template('booking.html')
 
-
-@app.route('/reserve/<booking>/', methods=['GET', 'POST'])
-def reserve(booking):
+@app.route('/reserve/<booking>/<booking_date>', methods=['GET', 'POST'])
+def reserve(booking, booking_date):
     cur = mysql.connection.cursor()
     curr = mysql.connection.cursor()
     booking = eval(booking)
@@ -351,6 +354,7 @@ def reserve(booking):
             f"DATE_ADD('{booking['selected_date']}', INTERVAL 1 YEAR), "
             f"'{booking['contract_type_id']}')"
         )
+
         curr.execute(queryStatement1)
         mysql.connection.commit()
         curr.close()
@@ -366,8 +370,7 @@ def reserve(booking):
     ccurr.close()
 
     flash('Successfully booked the room', 'success')
-    return redirect('/booking')
-
+    return render_template('booking.html', bookings=booking, selected_date=booking_date)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -377,14 +380,29 @@ def profile():
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
-    
+
     cur = mysql.connection.cursor()
     queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
     user_profile = cur.execute(queryStatement)
-    print(user_profile)
+    
     if user_profile > 0:
         user = cur.fetchall()
-        return render_template('profile.html', user=user)
 
+        queryStatement2 = f"""SELECT * FROM rooms WHERE contract_id IN (SELECT contract_id FROM contracts WHERE user_id = {user[0]['user_id']})"""
+        room_result = cur.execute(queryStatement2)
+        
+        if room_result > 0:
+            rooms = cur.fetchall()
+        else:
+            rooms = None
+        
+        selected_date = request.form.get('booking_date')
+        
+        return render_template('profile.html', user=user, rooms=rooms, selected_date=selected_date)
+    
+    return render_template('profile.html')
+
+    
 if __name__ == "__main__":
     app.run(debug=True)
+

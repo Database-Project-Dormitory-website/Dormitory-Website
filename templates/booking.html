@@ -75,6 +75,9 @@ h1 {
                             <td>{{ booking['room_number'] }}</td>
                             <td>
                                 <a href="/reserve/{{ booking }}" class="btn btn-outline-danger">CHOOSE</a>
+                                <p>Selected Date: {{ selected_date }}</p>
+                                <p>Contract Type: {{ contract_type }}</p>
+
                             </td>
                         </tr>
                     </tbody>
@@ -104,10 +107,12 @@ $(document).ready(function() {
     }
     });
 
+    
     $("#datepicker, #bedTypeSelect, #contractDurationSelect").change(function() {
     var selectedDate = $("#datepicker").val();
     var bedType = $("#bedTypeSelect").val();
     var contractDuration = $("#contractDurationSelect").val();
+    
 
     if (selectedDate && name && bedType && contractDuration) {
         console.log("Registration Successful");
