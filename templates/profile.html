@@ -1,153 +1,138 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-<style>
-.container {
-    max-width: 600px; 
-    margin: 0 auto;
-    padding: 20px;
-}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
 
-h1 {
-    text-align: left;
-    margin-bottom: 20px;
-}
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
-.form-control {
-    margin-bottom: 15px;
-}
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
 
-#priceDisplay {
-    font-weight: bold;
-    margin-top: 20px;
-}
+        .user-profile-table {
+            margin-top: 40px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
 
-#contact {
-    padding-top: 50px;
-    background-color: rgb(253, 231, 235);
-}
+        .user-profile-table h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
 
-.text-center {
-    text-align: center;
-}
+        .user-profile-table h4 {
+            font-size: 18px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
 
-.text-left {
-    text-align: left;
-}
+        .user-profile-table p {
+            margin-bottom: 5px;
+        }
 
-.mb-5 {
-    margin-bottom: 5rem;
-}
+        .white-box {
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
 
-.mt-4 {
-    margin-top: 4rem;
-}
+        .white-box p, .white-box h4 {
+            margin-bottom: 0;
+            font-size: 18px;
+        }
 
-.list-group-item {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
-    border: none;
-}
+        #roomNumbers {
+            margin-top: 17px;
+            list-style-type: none;
+            padding-right: 400px;
+        }
 
-.list-group-item h4 {
-    margin-top: 1rem;
-    font-family: inherit; 
-    font-weight: inherit; 
-    font-size: inherit; 
-}
+        .list-group-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-.list-unstyled {
-    margin-left: 0;
-    padding-left: 0;
-    list-style-type: none;
-}
+        .list-group-item i {
+            font-size: 20px;
+            margin-right: 10px;
+        }
 
-.btn-outline-danger {
-    color: #dc3545;
-    border-color: #dc3545;
-}
+        .btn-outline-danger {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
 
-.btn-outline-danger:hover {
-    color: #fff;
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+    </style>
 
-.row.justify-content-center {
-    justify-content: center;
-}
+    <div class="container">
+        <h1 class="text-left">Profile: {{ user[0]['first_name'] }} {{ user[0]['last_name'] }}</h1>
 
-.col-md-4 {
-    flex: 0 0 50%; 
-    max-width: 50%; 
-    background-color: #fff; 
-    padding: 20px; 
-}
+        <div class="user-profile-table">
+            <h3>Welcome, {{ user[0]['first_name'] }}!</h3>
+            
+            <div class="list-group">
+                <div class="list-group-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <h4>Booked Room Numbers:</h4>
+                    {% if rooms %}
+                        <ul class="list-unstyled" id="roomNumbers">
+                            {% for room in rooms %}
+                                <li>{{ room['room_number'] }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Sorry, currently no rooms are available.</p>
+                    {% endif %}
+                </div>
+            </div>
 
-#roomNumbers {
-    margin-top: 1rem;
-    margin-left: 0;
-    padding-left: 0;
-}
-
-</style>
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="text-left mb-5">Profile: {{ user[0]['first_name'] }} {{ user[0]['last_name'] }}</h1>
+            <div class="mt-4">
+                <div class="white-box">
+                    <p>Move-in Date: {{ selected_date }}</p>
+                </div>
+                <div class="white-box">
+                    <h4 class="mb-3">Contract Details:</h4>
+                    <ul class="list-unstyled">
+                        <li class="white-box mb-0">Contract Type: {{ contract_type }}</li>
+                        <li class="white-box mb-0">Start Date: {{ start_date }}</li>
+                        <li class="white-box mb-0">End Date: {{ end_date }}</li>
+                    </ul>
+                </div>
+                <div class="white-box">
+                    <p>Room Type: {{ room_type }}</p>
+                </div>
+                <div class="white-box">
+                    <p>Additional Information:</p>
+                </div>
+                <a href="/write-review" class="btn btn-outline-danger">Add Review</a>
+            </div>
         </div>
     </div>
 
-    <section id="contact">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <h3 class="text-left">Welcome, {{ user[0]['first_name'] }}!</h3>
-                <ul class="list-group text-left">
-                    <li class="list-group-item">
-                        <i class="bi bi-geo-alt-fill"></i>
-                        <h4 class="text-left">Booked Room Numbers:</h4>
-                        {% if rooms %}
-                        <ul class="list-unstyled" id="roomNumbers">
-                            {% for room in rooms %}
-                            <li class="text-left">{{ room['room_number'] }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% else %}
-                        <p>Sorry, currently no rooms are available.</p>
-                        {% endif %}
-                    </li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="text-left">
-                    <p class="text-left">Move-in Date: {{ selected_date }}</p>
-                    <p class="text-left">Contract Details:</p>
-                    <ul class="list-unstyled">
-                        <li class="text-left">Contract Type: {{ contract_type }}</li>
-                        <li class="text-left">Start Date: {{ start_date }}</li>
-                        <li class="text-left">End Date: {{ end_date }}</li>
-                    </ul>
-                    
-                    <p class="text-left">Room Type: {{ room_type }}</p>
-                    <p class="text-left">Additional Information:</p>
-                </div>
-                <div class="text-left mt-4">
-                    <a href="/write-review" class="btn btn-outline-danger">Add Review</a> 
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 {% endblock %}
