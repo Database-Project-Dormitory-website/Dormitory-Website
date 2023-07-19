@@ -1,6 +1,4 @@
-
 from datetime import datetime
-
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -147,6 +145,20 @@ def write_review():
     except:
         flash('Please sign in first.', 'danger')
         return redirect('/login')
+
+    curr = mysql.connection.cursor()
+    que = f"SELECT user_id FROM user WHERE username = '{username}'"
+    curr.execute(que)
+    user = curr.fetchone()
+
+    ccur = mysql.connection.cursor()
+    query = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
+    ccur.execute(query)
+    check_user = ccur.fetchone()
+
+    if check_user is None:
+        flash('You are not allowed to leave a review as you do not live here', 'danger')
+        return redirect('/reviews')
     
     if request.method == 'POST':
         review = request.form
@@ -184,6 +196,7 @@ def logout():
 def delete_review(id):
     try:
         username = session['username']
+
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
@@ -193,30 +206,65 @@ def delete_review(id):
     cur.execute(review_user)
     user = cur.fetchall()
 
-    if (user[0]['username'] == username):
+    curr = mysql.connection.cursor()
+    query = f"SELECT role_id FROM user WHERE username = '{username}'"
+    curr.execute(query)
+    check_role = curr.fetchone()
+
+    if (user[0]['username'] == username or check_role['role_id'] == 1):
         queryStatement = f"DELETE FROM reviews WHERE review_id = {id}"
         print(queryStatement)
         cur.execute(queryStatement)
         mysql.connection.commit()
-        flash("Your review is deleted", "success")
+        flash("Your review is deleted.", "success")
         return redirect('/reviews')
     
     else:
-        flash("This is not your review", "danger")
+        flash("You are not allowed to delete a review that is not yours !", "danger")
         return redirect('/reviews')
 
 
 @app.route('/report-problem', methods=['GET', 'POST'])
 def reportproblem():
-    try:
-        username = session['username']
-    except:
-        flash('Please sign in first', 'danger')
+
     cur = mysql.connection.cursor()
+    que = f"SELECT user_id FROM user WHERE username = '{session['username']}'"
+    cur.execute(que)
+    user = cur.fetchone()
+
+    ccur = mysql.connection.cursor()
+    query = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
+    ccur.execute(query)
+    check_user = ccur.fetchone()
+
+    if check_user is None:
+        flash('You are not allowed to report room problem without a room !', 'danger')
+        return redirect('/profile')
+        
+    ccurr = mysql.connection.cursor()
     queryStatement = (
-        f"INSERT INTO problems (room_number, problem_details, status_id) "
-        f"VALUES ()"
+        f"SELECT r.room_number FROM rooms AS r "
+        f"JOIN contracts AS c on r.contract_id = c.contract_id AND c.user_id = {user['user_id']}"
     )
+    ccurr.execute(queryStatement)
+    room_number = ccurr.fetchone()
+
+    if request.method == 'POST':
+        problem = request.form
+        problem_details = problem['problem_details']
+
+        curr = mysql.connection.cursor()
+        queryStatement1 = (
+            f"INSERT INTO problems (room_number, problem_details, status_id) "
+            f"VALUES ({room_number['room_number']}, '{problem_details}', 4)"
+        )
+        curr.execute(queryStatement1)
+        mysql.connection.commit()
+        ccurr.close()
+    
+        flash('Your problem will soon be fixed, please be patient.', 'success')
+        return redirect('/profile')
+    
     return render_template('report-problem.html')
 
 
@@ -232,6 +280,7 @@ def admin():
         f"JOIN rooms AS r on c.contract_id = r.contract_id "
         f"JOIN roomtype AS rt on r.room_type_id = rt.room_type_id"
     )
+
     queryStatement1 = (
         f"SELECT room_number, "
         f"(SELECT room_type FROM roomtype WHERE room_type_id = rooms.room_type_id) AS room_type "
@@ -241,15 +290,19 @@ def admin():
     print(queryStatement1)
     result_value = cur.execute(queryStatement)
     result_value1 = curr.execute(queryStatement1)
+
     if result_value > 0 and result_value1 > 0:
         rooms = cur.fetchall()
         empty_rooms = curr.fetchall()
         return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms)
+    
     elif result_value <= 0:
         return render_template('admin.html', rooms=None)
+    
     elif result_value1 <= 0:
         return render_template('admin.html', empty_rooms=None)
     
+
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
     try:
@@ -263,16 +316,14 @@ def booking():
     currr.execute(que)
     user = currr.fetchone()
 
-    try:
-        cccur = mysql.connection.cursor()
-        que = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
-        cccur.execute(que)
-        cccur.fetchone()
-        flash('You have a room already !', 'danger')
+    cccur = mysql.connection.cursor()
+    query = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
+    cccur.execute(query)
+    check_user = cccur.fetchone()
+
+    if check_user is not None:
+        flash('You have a room already.', 'danger')
         return redirect('/')
-    except:
-        redirect('booking.html')
-        
 
     if request.method == 'POST':
         booking = request.form
@@ -292,6 +343,7 @@ def booking():
         queryStatement = f"""SELECT * FROM rooms WHERE room_type_id = '{bedtype}'"""
         booking_list = cur.execute(queryStatement)
         print(booking_list)
+
         queryStatement2 = (
             f"SELECT contract_type_id, price FROM contracttype "
             f"WHERE contract_length_id = '{contract}' AND room_type_id = '{bedtype}'"
@@ -302,6 +354,7 @@ def booking():
         if booking_list > 0:
             booking = cur.fetchall()
             bookings = []
+
             for bk in booking:
                 if bk['contract_id'] is None:
                     bk['contract_type'] = contract
