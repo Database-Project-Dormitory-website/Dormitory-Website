@@ -55,6 +55,8 @@ h1 {
     </div>
 </div>
 
+
+{% if bookings %}
 <div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
     <h2>AVAILABLE ROOMS</h2>
 </div>
@@ -68,24 +70,24 @@ h1 {
                     <th>CHOOSE ROOM</th>
                 </tr>
             </thead>
-            {% if bookings %}
-                {% for booking in bookings %}
-                    <tbody style="background-color:rgb(253, 231, 235);">
-                        <tr>
-                            <td>{{ booking['room_number'] }}</td>
-                            <td>
-                                <a href="/reserve/{{ booking }}" class="btn btn-outline-danger">CHOOSE</a>
-                                <p>Selected Date: {{ selected_date }}</p>
-                                <p>Contract Type: {{ contract_type }}</p>
-
-                            </td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            {% endif %}
+            {% for booking in bookings %}
+                <tbody style="background-color:rgb(253, 231, 235);">
+                    <tr>
+                        <td>
+                            <div style="margin-top: 6px;">
+                                {{ booking['room_number'] }}
+                            </div>
+                        </td>
+                        <td>
+                            <a href="/reserve/{{ booking }}" class="btn btn-outline-danger">CHOOSE</a>
+                        </td>
+                    </tr>
+                </tbody>
+            {% endfor %}
         </table>
     </div>
 </div>
+{% endif %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -118,25 +120,6 @@ $(document).ready(function() {
         console.log("Registration Successful");
         console.log("Bed Type: " + bedType);
         console.log("Contract Duration: " + contractDuration);
-
-        var price = 0;
-        if (bedType === "single") {
-        if (contractDuration === "6months") {
-            price = 8000;
-        } else if (contractDuration === "1year") {
-            price = 6000;
-        }
-        } else if (bedType === "double") {
-        if (contractDuration === "6months") {
-            price = 12000;
-        } else if (contractDuration === "1year") {
-            price = 10000;
-        }
-        }
-
-        $("#priceDisplay").text("Price: " + price + " THB");
-    } else {
-        console.log("Please fill in all fields");
     }
     });
 });

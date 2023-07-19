@@ -1,11 +1,9 @@
-from asyncio.windows_events import NULL
+
 from datetime import datetime
-from datetime import date
 
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
-import sqlite3
 import yaml
 from dateutil.relativedelta import relativedelta
 
@@ -27,19 +25,21 @@ def index():
     return render_template("index.html")
 
 
-
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
+    
     elif request.method == 'POST':
         loginForm = request.form
         username = loginForm['username']
         cur = mysql.connection.cursor()
         queryStatement = f"SELECT * FROM user WHERE username = '{username}'"
         numRow = cur.execute(queryStatement)
+
         if numRow > 0:
             user = cur.fetchone()
+
             if check_password_hash(user['password'], loginForm['password']):
                 # Record session information
                 session['login'] = True
@@ -54,15 +54,19 @@ def login():
                 flash('Welcome ' + session['firstName'], 'success')
                 # flash("Log In successful",'success')
                 return redirect('/')
+            
             else:
                 cur.close()
                 flash("Password is incorrect", 'danger')
+
         else:
             cur.close()
             flash('User not found', 'danger')
             return render_template('login.html')
+        
         cur.close()
         return render_template('login.html')
+    
     return render_template('login.html')
 
 
@@ -70,14 +74,16 @@ def login():
 def register():
     if request.method == 'GET':
         return render_template('register.html')
+    
     elif request.method == 'POST':
         userDetails = request.form
-
         queryStatement = f"SELECT * FROM user"
         cur = mysql.connection.cursor()
         numRow = cur.execute(queryStatement)
+
         if numRow > 0:
             user = cur.fetchone()
+
             if userDetails['username'] in user['username']:
                 flash('This username isn\'t available. Please try another.', 'danger')
                 return render_template('register.html')
@@ -110,6 +116,7 @@ def register():
 
         flash("Form Submitted Successfully.", "success")
         return redirect('/')
+    
     return render_template('register.html')
 
 
@@ -124,9 +131,11 @@ def reviews():
     queryStatement = f"SELECT * FROM reviews"
     print(queryStatement)
     result_value = cur.execute(queryStatement)
+
     if result_value > 0:
         reviews = cur.fetchall()
         return render_template('reviews.html', reviews=reviews)
+    
     else:
         return render_template('reviews.html', reviews=None)
 
@@ -138,6 +147,7 @@ def write_review():
     except:
         flash('Please sign in first.', 'danger')
         return redirect('/login')
+    
     if request.method == 'POST':
         review = request.form
         body = review['body']
@@ -150,10 +160,11 @@ def write_review():
         cur.execute(queryStatement)
         mysql.connection.commit()
         cur.close()
+
         flash("Successfully posted", 'success')
         return redirect('/reviews')
+    
     return render_template('write-review.html')
-
 
 
 @app.route('/logout')
@@ -189,47 +200,24 @@ def delete_review(id):
         mysql.connection.commit()
         flash("Your review is deleted", "success")
         return redirect('/reviews')
+    
     else:
         flash("This is not your review", "danger")
         return redirect('/reviews')
 
 
 @app.route('/report-problem', methods=['GET', 'POST'])
-def report_problem():
+def reportproblem():
     try:
         username = session['username']
     except:
         flash('Please sign in first', 'danger')
-        return redirect('/login')
-    if request.method == 'POST':
-        room_number = request.form.get('room_number')
-        problem_description = request.form.get('problem_description')
-
-    # Validate form inputs
-        if not room_number or not problem_description:
-            return render_template('report_problem.html', error="Please fill in all fields.")
-    with sqlite3.connect('models/dormWEB.db') as conn:
-        con = conn.cursor()
-        con.execute("INSERT INTO Problems (user_id, room_id, problem_details, status) VALUES (?, ?, ?, ?)",
-                (username, room_number, problem_description, 'pending'))
-        conn.commit()
-    return render_template('report_problem.html')
-
-
-@app.route('/problems', methods=['GET','POST'])
-def problem():
-    username = session.get('username')
-    if username != 'admin':
-        return redirect('/login')
-    if request.method == 'POST':
-        problem_id = request.form.get('problem_id')
-        new_status = request.form.get('new_status')
-        with sqlite3.connect('models/dormWEB.db') as conn:
-            con = conn.cursor()
-            con.execute("UPDATE Problem SET status = ? WHERE problem_id = ?", (new_status, problem_id))
-            con.execute("SELECT * FROM Problem")
-            problems = con.fetchall()
-    return render_template('problems.html', problems=problems)
+    cur = mysql.connection.cursor()
+    queryStatement = (
+        f"INSERT INTO problems (room_number, problem_details, status_id) "
+        f"VALUES ()"
+    )
+    return render_template('report-problem.html')
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -269,16 +257,29 @@ def booking():
     except:
         flash('Please sign in first', 'danger')
         return redirect('/login')
+    
+    currr = mysql.connection.cursor()
+    que = f"SELECT user_id FROM user WHERE username = '{username}'"
+    currr.execute(que)
+    user = currr.fetchone()
+
+    try:
+        cccur = mysql.connection.cursor()
+        que = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
+        cccur.execute(que)
+        cccur.fetchone()
+        flash('You have a room already !', 'danger')
+        return redirect('/')
+    except:
+        redirect('booking.html')
+        
 
     if request.method == 'POST':
         booking = request.form
         date_ = booking['datepicker']
         bedtype = booking['bedTypeSelect']
         contract = booking['contractDurationSelect']
-        currr = mysql.connection.cursor()
-        que = f"SELECT user_id FROM user WHERE username = '{username}'"
-        currr.execute(que)
-        user = currr.fetchone()
+
         if not date_:
             flash('Please select move-in date', 'danger')
             return redirect('/booking')
@@ -297,6 +298,7 @@ def booking():
         )
         ccur.execute(queryStatement2)
         contract_type = ccur.fetchone()
+
         if booking_list > 0:
             booking = cur.fetchall()
             bookings = []
@@ -308,14 +310,17 @@ def booking():
                     bk['contract_type_id'] = contract_type['contract_type_id']
                     bk['price'] = contract_type['price']
                     bookings.append(bk)
+
                 else:
                     queryStatement1 = (
                         f"SELECT c.end FROM contracts AS c "
                         f"JOIN rooms AS r ON c.contract_id = r.contract_id AND r.room_number = {bk['room_number']}"
                     )
                     checks = curr.execute(queryStatement1)
+
                     if checks > 0:
                         check = curr.fetchone()
+
                         if (check['end'] + relativedelta(months=1)) < datetime.strptime(date_, '%Y-%m-%d').date():
                             bk['contract_type'] = contract
                             bk['selected_date'] = date_
@@ -324,13 +329,13 @@ def booking():
                             bk['price'] = contract_type['price']
                             bookings.append(bk)
             print(bookings)
-            flash('Successful.', 'success')
             return render_template('booking.html', bookings=bookings, selected_date=date_)
 
     return render_template('booking.html')
 
-@app.route('/reserve/<booking>/<booking_date>', methods=['GET', 'POST'])
-def reserve(booking, booking_date):
+
+@app.route('/reserve/<booking>/', methods=['GET', 'POST'])
+def reserve(booking):
     cur = mysql.connection.cursor()
     curr = mysql.connection.cursor()
     booking = eval(booking)
@@ -358,6 +363,7 @@ def reserve(booking, booking_date):
         curr.execute(queryStatement1)
         mysql.connection.commit()
         curr.close()
+
     ccur = mysql.connection.cursor()
     queryStatement2 = f"SELECT contract_id FROM contracts WHERE user_id = {booking['user_id']}"
     ccur.execute(queryStatement2)
@@ -370,7 +376,7 @@ def reserve(booking, booking_date):
     ccurr.close()
 
     flash('Successfully booked the room', 'success')
-    return render_template('booking.html', bookings=booking, selected_date=booking_date)
+    return render_template('booking.html', bookings=booking)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
