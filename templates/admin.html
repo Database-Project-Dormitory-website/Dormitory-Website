@@ -43,8 +43,8 @@
         <table class="table table-bordered">
             <thead style="background-color:aliceblue;">
                 <tr>
-                    <th>ROOM NUMBER</th>
-                    <th>ROOM TYPE</th>
+                    <th class="col-4">ROOM NUMBER</th>
+                    <th class="col-4">ROOM TYPE</th>
                 </tr>
             </thead>
             {% if empty_rooms %}
@@ -63,6 +63,46 @@
 
 <div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
     <h2>PROBLEMS REPORT</h2>
+</div>
+
+<div class="d-flex justify-content-center">
+    <div class="text-center" style="width: 1200px;">
+        <table class="table table-bordered">
+            <thead style="background-color:aliceblue;">
+                <tr>
+                    <th class="col-2">ROOM NUMBER</th>
+                    <th class="col-6">PROBLEM DETAILS</th>
+                    <th class="col-2">PROBLEM STATUS</th>
+                    <th class="col-2">UPDATE STATUS</th>
+                </tr>
+            </thead>
+            {% if problems %}
+                {% for problem in problems %}
+                    <tbody style="background-color:rgb(253, 231, 235);">
+                        <tr>
+                            <td>{{ problem['room_number'] }}</td>
+                            <td>{{ problem['problem_details'] }}</td>
+                            <td>{{ problem['status'].upper() }}</td>
+                            <td>
+                                <form method="POST" class="form-inline">
+                                    <div class="text-center">
+                                        <label for="status" class="form-label"></label>
+                                        <select id="status" class="form-control" name="status">
+                                            <option value="waiting">W</option>
+                                            <option value="in progress">IP</option>
+                                            <option value="done">D</option>
+                                            <option value="cancelled">C</option>
+                                        </select>
+                                    </div>
+                                        <button type="submit" class="btn btn-outline-danger" style="margin-top: 10px; margin-bottom: 20px;">Confirm</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
 </div>
 
 

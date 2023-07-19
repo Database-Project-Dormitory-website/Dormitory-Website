@@ -272,6 +272,8 @@ def reportproblem():
 def admin():
     cur = mysql.connection.cursor()
     curr = mysql.connection.cursor()
+    ccur = mysql.connection.cursor()
+
     queryStatement = (
         f"SELECT u.first_name, u.last_name, u.email, u.phone_number, "
         f"c.start, c.end, r.room_number, rt.room_type "
@@ -286,21 +288,34 @@ def admin():
         f"(SELECT room_type FROM roomtype WHERE room_type_id = rooms.room_type_id) AS room_type "
         f"FROM rooms WHERE contract_id IS NULL"
     )
+
+    queryStatement2 = (
+        f"SELECT r.room_number, p.problem_details, s.status FROM rooms AS r "
+        f"JOIN problems AS p on r.room_number = p.room_number "
+        f"JOIN status AS s on p.status_id = s.status_id"
+    )
+
     print(queryStatement)
     print(queryStatement1)
+    print(queryStatement2)
     result_value = cur.execute(queryStatement)
     result_value1 = curr.execute(queryStatement1)
+    result_value2 = ccur.execute(queryStatement2)
 
-    if result_value > 0 and result_value1 > 0:
+    if (result_value > 0) and (result_value1 > 0) and (result_value2 > 0):
         rooms = cur.fetchall()
         empty_rooms = curr.fetchall()
-        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms)
+        problems = ccur.fetchall()
+        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms, problems=problems)
     
     elif result_value <= 0:
         return render_template('admin.html', rooms=None)
     
     elif result_value1 <= 0:
         return render_template('admin.html', empty_rooms=None)
+    
+    elif result_value2 <= 0:
+        return render_template('admin.html', problems=None)
     
 
 @app.route('/booking', methods=['GET', 'POST'])
