@@ -270,6 +270,13 @@ def reportproblem():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
+    try:
+        username = session['username']
+
+    except:
+        flash('Please sign in first.', 'danger')
+        return redirect('/')
+    
     cur = mysql.connection.cursor()
     curr = mysql.connection.cursor()
     ccur = mysql.connection.cursor()
@@ -294,6 +301,15 @@ def admin():
         f"JOIN problems AS p on r.room_number = p.room_number "
         f"JOIN status AS s on p.status_id = s.status_id"
     )
+
+    currr = mysql.connection.cursor()
+    query = f"SELECT role_id FROM user WHERE username = '{username}'"
+    currr.execute(query)
+    check_role = currr.fetchone()
+
+    if check_role != 1:
+        flash('You do not have admin role.', 'danger')
+        return redirect('/login')
 
     print(queryStatement)
     print(queryStatement1)
