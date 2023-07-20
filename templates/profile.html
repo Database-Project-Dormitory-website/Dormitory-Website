@@ -1,139 +1,82 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-        }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+{% if user_details %}
+<div class="text-center container rounded" style="background-color:rgb(253, 231, 235); width: 600px; margin-top: 50px; padding-top: 20px; padding-bottom: 20px;">
+    <h1>Welcome Back, {{ user_details['first_name'] }}</h1>
+</div>
 
-        h1 {
-            font-size: 28px;
-            margin-bottom: 30px;
-        }
+<div class="container" style="width: 700px; margin-top: 30px;">
+    <h6>Personal Details</h6>
+</div>
 
-        .user-profile-table {
-            margin-top: 40px;
-            padding: 30px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .user-profile-table h3 {
-            font-size: 24px;
-            margin-bottom: 15px;
-        }
-
-        .user-profile-table h4 {
-            font-size: 18px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .user-profile-table p {
-            margin-bottom: 5px;
-        }
-
-        .white-box {
-            background-color: #fff;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-
-        .white-box p, .white-box h4 {
-            margin-bottom: 0;
-            font-size: 18px;
-        }
-
-        #roomNumbers {
-            margin-top: 17px;
-            list-style-type: none;
-            padding-right: 400px;
-        }
-
-        .list-group-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .list-group-item i {
-            font-size: 20px;
-            margin-right: 10px;
-        }
-
-        .btn-outline-danger {
-            color: #dc3545;
-            border-color: #dc3545;
-        }
-
-        .btn-outline-danger:hover {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
-        }
-    </style>
-
-    <div class="container">
-        <h1 class="text-left">Profile: {{ user[0]['first_name'] }} {{ user[0]['last_name'] }}</h1>
-
-        <div class="user-profile-table">
-            <h3>Welcome, {{ user[0]['first_name'] }}!</h3>
-            
-            <div class="list-group">
-                <div class="list-group-item">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <h4>Booked Room Numbers:</h4>
-                    {% if rooms %}
-                        <ul class="list-unstyled" id="roomNumbers">
-                            {% for room in rooms %}
-                                <li>{{ room['room_number'] }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>Sorry, currently no rooms are available.</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="mt-4">
-                <div class="white-box">
-                    <p>Move-in Date: {{ selected_date }}</p>
-                </div>
-                <div class="white-box">
-                    <h4 class="mb-3">Contract Details:</h4>
-                    <ul class="list-unstyled">
-                        <li class="white-box mb-0">Contract Type: {{ contract_type }}</li>
-                        <li class="white-box mb-0">Start Date: {{ start_date }}</li>
-                        <li class="white-box mb-0">End Date: {{ end_date }}</li>
-                    </ul>
-                </div>
-                <div class="white-box">
-                    <p>Room Type: {{ room_type }}</p>
-                </div>
-                <div class="white-box">
-                    <p>Additional Information:</p>
-                </div>
-                <a href="{{ url_for('receipt')}}" class="btn btn-primary">Receipt</a>
-                <a href="{{ url_for('reportproblem')}}" class="btn btn-outline-danger">Report Problem</a>
-            </div>
-        </div>
+<div class="text-center container" style="color: rgb(0, 0, 100); background-color: aliceblue; width: 700px; margin-top: 10px;">
+    <div style="padding-top: 30px;">
+        <h5>Name: {{ user_details['first_name'] }} {{ user_details['last_name'] }}</h5>
     </div>
+    <div style="padding-top: 20px;">
+        <h5>Email: {{ user_details['email'] }}</h5>
+    </div>
+    <div style="padding-top: 20px; padding-bottom: 30px;">
+        <h5>Phone Number: {{ user_details['phone_number'] }}</h5>
+    </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<div class="container" style="width: 700px; margin-top: 30px;">
+    <h6>Room and Contract Details</h6>
+</div>
+
+<div class="text-center container" style="color: rgb(0, 0, 100); background-color: aliceblue; width: 700px; margin-top: 10px;">
+    <div style="padding-top: 30px;">
+        <h5>Room Number: {{ user_details['room_number'] }}</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Room Type: {{ user_details['room_type'].upper() }}</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Contract Type: {{ user_details['contract_length'].upper() }}</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Contract Start: {{ user_details['start'] }}</h5>
+    </div>
+    <div style="padding-bottom: 30px; padding-top: 20px;">
+        <h5>Contract End: {{ user_details['end'] }}</h5>
+    </div>
+</div>
+
+<div class="text-center container rounded" style="background-color:rgba(245, 242, 242, 0.963); width: 500px; margin-bottom: 50px; margin-top: 20px; padding-top: 20px; padding-bottom: 20px;">
+    <a href="{{ url_for('receipt') }}" class="btn btn-outline-success" style="margin-right: 10px;">Receipt</a>
+    <a href="{{ url_for('reportproblem') }}" class="btn btn-outline-danger" style="margin-left: 10px;">Report Problem</a>
+</div>
+
+{% else %}
+<div class="text-center container rounded" style="background-color:rgb(253, 231, 235); width: 600px; margin-top: 50px; padding-top: 20px; padding-bottom: 20px;">
+    <h1>Hello, {{ no_room_user['first_name'] }}</h1>
+</div>
+
+<div class="text-center container rounded" style="color: brown; background-color: aliceblue; width: 700px; margin-top: 10px;">
+    <div style="padding-top: 30px;">
+        <h5>Room Number: You do not have a room yet</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Room Type: None</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Contract Type: None</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Contract Start: None</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Contract End: None</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <p>If you wish to book a room now, click here</p>
+    </div>
+    <div style="padding-bottom: 30px;">
+        <a href="{{ url_for('booking') }}" class="btn btn-outline-danger">Book a Room</a>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

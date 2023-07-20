@@ -489,23 +489,36 @@ def profile():
         return redirect('/login')
 
     cur = mysql.connection.cursor()
-    queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
-    user_profile = cur.execute(queryStatement)
-    
-    if user_profile > 0:
-        user = cur.fetchall()
+    queryStatement = f"""SELECT user_id FROM user WHERE username = '{username}'"""
+    user = cur.execute(queryStatement)
 
-        queryStatement2 = f"""SELECT * FROM rooms WHERE contract_id IN (SELECT contract_id FROM contracts WHERE user_id = {user[0]['user_id']})"""
-        room_result = cur.execute(queryStatement2)
+    if user > 0:
+        user_id = cur.fetchone()
         
-        if room_result > 0:
-            rooms = cur.fetchall()
+        curr = mysql.connection.cursor()
+        queryStatement1 = (
+            f"SELECT u.first_name, u.last_name, u.phone_number, u.email, r.room_number, rt.room_type, c.start, c.end, "
+            f"(SELECT contract_length FROM contractlength WHERE contract_length_id = ct.contract_length_id) AS contract_length "
+            f"FROM user AS u JOIN contracts AS c on u.user_id = c.user_id AND u.user_id = {user_id['user_id']} "
+            f"JOIN rooms AS r on c.contract_id = r.contract_id "
+            f"JOIN contracttype AS ct on c.contract_type_id = ct.contract_type_id "
+            f"JOIN roomtype AS rt on ct.room_type_id = rt.room_type_id"
+        )
+        check = curr.execute(queryStatement1)
+
+        if check > 0:
+            user_details = curr.fetchone()
+            print(user_details)
+            return render_template('profile.html', user_details=user_details)
         else:
-            rooms = None
-        
-        selected_date = request.form.get('booking_date')
-        
-        return render_template('profile.html', user=user, rooms=rooms, selected_date=selected_date)
+            user_details = None
+
+            ccur = mysql.connection.cursor()
+            queryStatement2 = f"SELECT * FROM user WHERE username = '{username}'"
+            ccur.execute(queryStatement2)
+            no_room_user = ccur.fetchone()
+
+            return render_template('profile.html', user_details=None, no_room_user=no_room_user)
     
     return render_template('profile.html')
 
