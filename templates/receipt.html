@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css"
+      integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" crossorigin="anonymous"/>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="text-muted">
+                                <h5 class="font-size-16 mb-3">Billed To:</h5>
+                                <h5 class="font-size-15 mb-2">{{ user['first_name'] }} {{ user['last_name'] }}</h5>
+                                <p class="mb-1">{{ user['email'] }}</p>
+                                <p>{{ user['phone_number'] }}</p>
+                            </div>
+                        </div>
+                        <!-- end col -->
+                        <div class="col-sm-6">
+                            <div class="text-muted text-sm-end">
+                                <div class="mt-4">
+                                    <h5 class="font-size-15 mb-1">Invoice Date:</h5>
+                                    <p>{{ receipt[0]['receipt_date'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end col -->
+                    </div>
+                    <!-- end row -->
+
+                    <div class="py-2">
+                        <h5 class="font-size-16">Order Summary</h5>
+
+                        <div class="table-responsive">
+                            <table class="table align-middle table-nowrap table-centered mb-0">
+                                <thead>
+                                <tr>
+                                    <th style="width: 70px;">No.</th>
+                                    <th>Description</th>
+                                    <th class="text-end" style="width: 120px;">Price</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row">01</th>
+                                    <td>
+                                        <div>
+                                            <h5 class="text-truncate font-size-14 mb-1">Room fee</h5>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ receipt[0]['receipt_electric'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">02</th>
+                                    <td>
+                                        <div>
+                                            <h5 class="text-truncate font-size-14 mb-1">Electric bill</h5>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ receipt[0]['receipt_water'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">03</th>
+                                    <td>
+                                        <div>
+                                            <h5 class="text-truncate font-size-14 mb-1">Water bill</h5>
+                                        </div>
+                                    </td>
+                                    <td class="text-end">{{ room_price['price'] }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="2" class="border-0 text-end">Total</th>
+                                    {% set total = receipt[0]['receipt_electric'] + receipt[0]['receipt_water'] +
+                                    room_price['price'] %}
+                                    <td class="border-0 text-end"><h4 class="m-0 fw-semibold">{{ '{:,.2f}'.format(total)
+                                        }}</h4></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- end table responsive -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end col -->
+    </div>
+</div>
+{% endblock %}

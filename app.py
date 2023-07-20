@@ -492,7 +492,45 @@ def profile():
     
     return render_template('profile.html')
 
-    
+
+@app.route('/receipt/')
+def receipt():
+    if 'username' not in session:
+        flash('Please log in first', 'danger')
+        return redirect('/login')
+
+    username = session['username']
+
+    # Connect to the MySQL database
+    cur = mysql.connection.cursor()
+
+    # Retrieve the user profile based on the username
+    queryStatement = f"SELECT * FROM user WHERE username = '{username}'"
+    cur.execute(queryStatement)
+    user_profile = cur.fetchone()
+
+    if user_profile:
+        # Retrieve the contract and receipt data for the user
+        queryStatement2 = f"""
+            SELECT ct.price
+            FROM contracts c
+            JOIN contracttype ct ON c.contract_type_id = ct.contract_type_id
+            WHERE c.user_id = {user_profile['user_id']}
+        """
+        cur.execute(queryStatement2)
+        room_price = cur.fetchone()
+
+        queryStatement3 = f""" SELECT * FROM receipt WHERE user_id = {user_profile['user_id']}"""
+        cur.execute(queryStatement3)
+        receipt = cur.fetchall()
+
+        # Close the cursor and connection
+        cur.close()
+
+        return render_template('receipt.html', user=user_profile, room_price=room_price, receipt=receipt)
+
+    return render_template('receipt.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
 
