@@ -301,12 +301,13 @@ def admin():
     result_value = cur.execute(queryStatement)
     result_value1 = curr.execute(queryStatement1)
     result_value2 = ccur.execute(queryStatement2)
+    statuses = ['done', 'in progress', 'cancelled', 'waiting']
 
     if (result_value > 0) and (result_value1 > 0) and (result_value2 > 0):
         rooms = cur.fetchall()
         empty_rooms = curr.fetchall()
         problems = ccur.fetchall()
-        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms, problems=problems)
+        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms, problems=problems, statuses=statuses)
     
     elif result_value <= 0:
         return render_template('admin.html', rooms=None)
@@ -445,6 +446,21 @@ def reserve(booking):
 
     flash('Successfully booked the room', 'success')
     return render_template('booking.html', bookings=booking)
+
+
+@app.route('/modify/<problem>/<status>', methods=['GET', 'POST'])
+def modify(problem, status):
+    cur = mysql.connection.cursor()
+    problem = eval(problem)
+    queryStatement = (
+        f"UPDATE problems SET status_id = (SELECT status_id FROM status WHERE status = '{status}') "
+        f"WHERE room_number = {problem['room_number']}"
+    )
+    cur.execute(queryStatement)
+    mysql.connection.commit()
+    cur.close()
+
+    return redirect('/admin')
 
 
 @app.route('/profile', methods=['GET', 'POST'])

@@ -70,10 +70,10 @@
         <table class="table table-bordered">
             <thead style="background-color:aliceblue;">
                 <tr>
-                    <th class="col-2">ROOM NUMBER</th>
+                    <th class="col-1.5">ROOM NUMBER</th>
                     <th class="col-6">PROBLEM DETAILS</th>
-                    <th class="col-2">PROBLEM STATUS</th>
-                    <th class="col-2">UPDATE STATUS</th>
+                    <th class="col-1.5">PROBLEM STATUS</th>
+                    <th class="col-3">UPDATE STATUS</th>
                 </tr>
             </thead>
             {% if problems %}
@@ -84,18 +84,15 @@
                             <td>{{ problem['problem_details'] }}</td>
                             <td>{{ problem['status'].upper() }}</td>
                             <td>
-                                <form method="POST" class="form-inline">
-                                    <div class="text-center">
-                                        <label for="status" class="form-label"></label>
-                                        <select id="status" class="form-control" name="status">
-                                            <option value="waiting">W</option>
-                                            <option value="in progress">IP</option>
-                                            <option value="done">D</option>
-                                            <option value="cancelled">C</option>
-                                        </select>
+                                {% if statuses %}
+                                <div class="row">
+                                    {% for status in statuses %}
+                                    <div class="col-3">
+                                        <a href="/modify/{{ problem }}/{{status}}" class="btn btn-outline-danger">{{ status[0].upper() }}</a>
                                     </div>
-                                        <button type="submit" class="btn btn-outline-danger" style="margin-top: 10px; margin-bottom: 20px;">Confirm</button>
-                                </form>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             </td>
                         </tr>
                     </tbody>
