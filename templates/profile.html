@@ -10,7 +10,7 @@
     <h6>Personal Details</h6>
 </div>
 
-<div class="text-center container" style="color: rgb(0, 0, 100); background-color: aliceblue; width: 700px; margin-top: 10px;">
+<div class="text-center container border border-3" style="color: rgb(0, 0, 100); border-radius: 10px; border-color: rgb(0, 0, 100); width: 700px; margin-top: 10px;">
     <div style="padding-top: 30px;">
         <h5>Name: {{ user_details['first_name'] }} {{ user_details['last_name'] }}</h5>
     </div>
@@ -26,7 +26,7 @@
     <h6>Room and Contract Details</h6>
 </div>
 
-<div class="text-center container" style="color: rgb(0, 0, 100); background-color: aliceblue; width: 700px; margin-top: 10px;">
+<div class="text-center container border border-3" style="color: rgb(0, 0, 100); border-radius: 10px; border-color: rgb(0, 0, 100); width: 700px; margin-top: 10px;">
     <div style="padding-top: 30px;">
         <h5>Room Number: {{ user_details['room_number'] }}</h5>
     </div>
@@ -54,7 +54,27 @@
     <h1>Hello, {{ no_room_user['first_name'] }}</h1>
 </div>
 
-<div class="text-center container rounded" style="color: brown; background-color: aliceblue; width: 700px; margin-top: 10px;">
+<div class="container" style="width: 700px; margin-top: 30px;">
+    <h6>Personal Details</h6>
+</div>
+
+<div class="text-center container border border-3" style="color: rgb(0, 0, 100); border-radius: 10px; border-color: rgb(0, 0, 100); width: 700px; margin-top: 10px;">
+    <div style="padding-top: 30px;">
+        <h5>Name: {{ no_room_user['first_name'] }} {{ no_room_user['last_name'] }}</h5>
+    </div>
+    <div style="padding-top: 20px;">
+        <h5>Email: {{ no_room_user['email'] }}</h5>
+    </div>
+    <div style="padding-top: 20px; padding-bottom: 30px;">
+        <h5>Phone Number: {{ no_room_user['phone_number'] }}</h5>
+    </div>
+</div>
+
+<div class="container" style="width: 700px; margin-top: 30px;">
+    <h6>Room and Contract Details</h6>
+</div>
+
+<div class="text-center container border border-3" style="color: rgb(0, 0, 100); border-radius: 10px; border-color: rgb(0, 0, 100); width: 700px; margin-top: 10px; margin-bottom: 50px;">
     <div style="padding-top: 30px;">
         <h5>Room Number: You do not have a room yet</h5>
     </div>
