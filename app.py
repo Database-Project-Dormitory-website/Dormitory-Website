@@ -1,4 +1,5 @@
 from datetime import datetime
+from tabnanny import check
 from flask import Flask, render_template, request, redirect, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_mysqldb import MySQL
@@ -307,7 +308,7 @@ def admin():
     currr.execute(query)
     check_role = currr.fetchone()
 
-    if check_role != 1:
+    if check_role['role_id'] != 1:
         flash('You do not have admin role.', 'danger')
         return redirect('/login')
 
