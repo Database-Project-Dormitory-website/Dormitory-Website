@@ -515,6 +515,19 @@ def receipt():
         flash('Please log in first', 'danger')
         return redirect('/login')
 
+    cur = mysql.connection.cursor()
+    que = f"SELECT user_id FROM user WHERE username = '{session['username']}'"
+    cur.execute(que)
+    user = cur.fetchone()
+    ccur = mysql.connection.cursor()
+    query = f"SELECT user_id FROM contracts WHERE user_id = {user['user_id']}"
+    ccur.execute(query)
+    check_user = ccur.fetchone()
+
+    if check_user is None:
+        flash('You are not allowed to see receipt without a room !', 'danger')
+        return redirect('/profile')
+
     username = session['username']
 
     # Connect to the MySQL database
@@ -546,6 +559,7 @@ def receipt():
         return render_template('receipt.html', user=user_profile, room_price=room_price, receipt=receipt)
 
     return render_template('receipt.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

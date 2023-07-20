@@ -50,7 +50,8 @@
                                             <h5 class="text-truncate font-size-14 mb-1">Room fee</h5>
                                         </div>
                                     </td>
-                                    <td class="text-end">{{ receipt['receipt_electric'] }}</td>
+                                    <td class="text-end">{{ room_price['price'] }}</td>
+
                                 </tr>
                                 <tr>
                                     <th scope="row">02</th>
@@ -59,7 +60,7 @@
                                             <h5 class="text-truncate font-size-14 mb-1">Electric bill</h5>
                                         </div>
                                     </td>
-                                    <td class="text-end">{{ receipt['receipt_water'] }}</td>
+                                    <td class="text-end">{{ receipt[0]['receipt_electric'] }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">03</th>
@@ -68,11 +69,11 @@
                                             <h5 class="text-truncate font-size-14 mb-1">Water bill</h5>
                                         </div>
                                     </td>
-                                    <td class="text-end">{{ room_price['price'] }}</td>
+                                    <td class="text-end">{{ receipt[0]['receipt_water'] }}</td>
                                 </tr>
                                 <tr>
                                     <th scope="row" colspan="2" class="border-0 text-end">Total</th>
-                                    {% set total = receipt['receipt_electric'] + receipt['receipt_water'] +
+                                    {% set total = receipt[0]['receipt_electric'] + receipt[0]['receipt_water'] +
                                     room_price['price'] %}
                                     <td class="border-0 text-end"><h4 class="m-0 fw-semibold">{{ '{:,.2f}'.format(total)
                                         }}</h4></td>
@@ -80,6 +81,7 @@
                                 </tbody>
                             </table>
                         </div>
+
                         <!-- end table responsive -->
                     </div>
                 </div>
