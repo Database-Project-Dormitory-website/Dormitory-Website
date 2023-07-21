@@ -1,0 +1,30 @@
+<!-- receipt_form.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Receipt Entry</h4>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="electricity">Electricity Bill</label>
+                            <input type="number" class="form-control" name="electricity" id="electricity"
+                                value="{{ receipt['receipt_electric'] if receipt else '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="water">Water Bill</label>
+                            <input type="number" class="form-control" name="water" id="water"
+                                value="{{ receipt['receipt_water'] if receipt else '' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

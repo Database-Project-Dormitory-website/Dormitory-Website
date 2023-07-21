@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>All Receipts</h1>
+  {% if receipts %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Room Number</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Electric Bill</th>
+          <th>Water Bill</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for receipt in receipts %}
+          <tr>
+            <td>{{ receipt['room_number'] }}</td>
+            <td>{{ receipt['first_name'] }}</td>
+            <td>{{ receipt['last_name'] }}</td>
+            <td>{{ receipt['start'] }}</td>
+            <td>{{ receipt['end'] }}</td>
+            <td>{{ receipt['electric_bill'] }}</td>
+            <td>{{ receipt['water_bill'] }}</td>
+            <td><a href="{{ url_for('assign_invoice', user_id=receipt['user_id']) }}" class="btn btn-primary">Edit</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No receipts available.</p>
+  {% endif %}
+{% endblock %}

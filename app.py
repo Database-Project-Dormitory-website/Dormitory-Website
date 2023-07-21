@@ -461,9 +461,19 @@ def reserve(booking):
     mysql.connection.commit()
     ccurr.close()
 
+    cur = mysql.connection.cursor()
+    username = session['username']
+    queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
+    user_profile = cur.execute(queryStatement)
+    user = cur.fetchall()
+    print("This will be print in the console", user[0]['user_id'])
+    queryStatement4 = f" INSERT INTO receipt (user_id, receipt_electric, receipt_water, receipt_date) VALUES ({user[0]['user_id']}, 0, 0,CURDATE())"
+    cur.execute(queryStatement4)
+    mysql.connection.commit()
+    cur.close()
+
     flash('Successfully booked the room', 'success')
     return render_template('booking.html', bookings=booking)
-
 
 @app.route('/modify/<problem>/<status>', methods=['GET', 'POST'])
 def modify(problem, status):
@@ -573,6 +583,70 @@ def receipt():
         return render_template('receipt.html', user=user_profile, room_price=room_price, receipt=receipt)
 
     return render_template('receipt.html')
+
+
+@app.route('/invoices')
+def invoices():
+    if 'username' not in session:
+        flash('Please log in first', 'danger')
+        return redirect('/login')
+
+    cur = mysql.connection.cursor()
+    queryStatement = (
+        "SELECT u.user_id,r.room_number, u.first_name, u.last_name, c.start, c.end, "
+        "rc.receipt_electric AS electric_bill, rc.receipt_water AS water_bill "
+        "FROM user AS u "
+        "JOIN contracts AS c ON u.user_id = c.user_id "
+        "JOIN rooms AS r ON c.contract_id = r.contract_id "
+        "JOIN receipt AS rc ON u.user_id = rc.user_id"
+    )
+
+    cur.execute(queryStatement)
+    receipts = cur.fetchall()
+    if receipts is None:
+        print("receipts is None")
+    else:
+        print("receipts is not None", receipts)
+    # Close the cursor and connection
+    cur.close()
+
+    return render_template('invoices.html', receipts=receipts)
+
+
+@app.route('/assign-invoice/<int:user_id>', methods=['GET', 'POST'])
+def assign_invoice(user_id):
+    if request.method == 'POST':
+        receipt_electric = request.form['receipt_electric']
+        receipt_water = request.form['receipt_water']
+
+        # Update the receipt in the database
+        cur = mysql.connection.cursor()
+        query = (
+            f"UPDATE receipt SET receipt_electric = {receipt_electric}, receipt_water = {receipt_water} , receipt_date = CURDATE()"
+            f"WHERE user_id = {user_id}"
+        )
+        cur.execute(query)
+        mysql.connection.commit()
+        cur.close()
+
+        flash('Receipt updated successfully', 'success')
+        return redirect('/invoices')
+
+    else:
+        # Fetch the receipt data for the user from the database
+        cur = mysql.connection.cursor()
+        query = f"SELECT * FROM receipt WHERE user_id = {user_id}"
+        cur.execute(query)
+        receipt = cur.fetchone()
+        cur.close()
+
+        if not receipt:
+            flash('Receipt not found', 'danger')
+            return redirect('/invoices')
+
+        return render_template('assign-invoice.html', user_id=user_id, receipt=receipt)
+
+
 
 
 if __name__ == "__main__":
