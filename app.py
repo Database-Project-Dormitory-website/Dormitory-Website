@@ -509,7 +509,7 @@ def profile():
         return redirect('/login')
 
     cur = mysql.connection.cursor()
-    queryStatement = f"""SELECT user_id FROM user WHERE username = '{username}'"""
+    queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
     user = cur.execute(queryStatement)
 
     if user > 0:
@@ -529,7 +529,19 @@ def profile():
         if check > 0:
             user_details = curr.fetchone()
             print(user_details)
-            return render_template('profile.html', user_details=user_details)
+            ccurr = mysql.connection.cursor()
+            queryStatement3 = (
+                f"SELECT p.problem_details, s.status FROM problems AS p "
+                f"JOIN rooms r on p.room_number = r.room_number AND p.room_number = {user_details['room_number']} "
+                f"JOIN status s on p.status_id = s.status_id"
+            )
+            pb = ccurr.execute(queryStatement3)
+            if pb > 0:
+                problems = ccurr.fetchall()
+                print(problems)
+                return render_template('profile.html', user_details=user_details, problems=problems)
+            else:
+                return render_template('profile.html', user_details=user_details, problems=None)
         else:
             user_details = None
 

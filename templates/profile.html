@@ -43,6 +43,31 @@
         <h5>Contract End: {{ user_details['end'] }}</h5>
     </div>
 </div>
+{% if problems %}
+<div class="container" style="width: 700px; margin-top: 30px;">
+    <h6>Problems tracking</h6>
+</div>
+{% for problem in problems %}
+<div class="d-flex justify-content-center">
+    <div class="text-center" style="width: 700px;">
+        <table class="table table-bordered">
+            <thead style="background-color:aliceblue;">
+                <tr>
+                    <th class="col-6">PROBLEM DETAILS</th>
+                    <th class="col-1">PROBLEM STATUS</th>
+                </tr>
+            </thead>
+            <tbody style="background-color:rgb(253, 231, 235);">
+                <tr>
+                    <td>{{ problem['problem_details'] }}</td>
+                    <td>{{ problem['status'] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
 
 <div class="text-center container rounded" style="background-color:rgba(245, 242, 242, 0.963); width: 500px; margin-bottom: 50px; margin-top: 20px; padding-top: 20px; padding-bottom: 20px;">
     <a href="{{ url_for('receipt') }}" class="btn btn-outline-success" style="margin-right: 10px;">Receipt</a>
