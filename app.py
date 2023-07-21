@@ -326,15 +326,25 @@ def admin():
         problems = ccur.fetchall()
         return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms, problems=problems, statuses=statuses)
     
-    elif result_value <= 0:
-        return render_template('admin.html', rooms=None)
+    elif (result_value <= 0) and (result_value1 > 0) and (result_value2 <= 0):
+        empty_rooms = curr.fetchall()
+        return render_template('admin.html', rooms=None, empty_rooms=empty_rooms, problems=None, statuses=statuses)
     
-    elif result_value1 <= 0:
-        return render_template('admin.html', empty_rooms=None)
+    elif (result_value > 0) and (result_value1 <= 0) and (result_value2 <= 0):
+        rooms = cur.fetchall()
+        return render_template('admin.html', rooms=rooms, empty_rooms=None, problems=None, statuses=statuses)
     
-    elif result_value2 <= 0:
-        return render_template('admin.html', problems=None)
+    elif (result_value > 0) and (result_value1 <= 0) and (result_value2 > 0):
+        rooms = cur.fetchall()
+        problems = ccur.fetchall()
+        return render_template('admin.html', rooms=rooms, empty_rooms=None, problems=problems, statuses=statuses)
     
+    elif (result_value > 0) and (result_value1 > 0) and (result_value2 <= 0):
+        rooms = cur.fetchall()
+        empty_rooms = curr.fetchall()
+        return render_template('admin.html', rooms=rooms, empty_rooms=empty_rooms, problems=None, statuses=statuses)
+
+
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
@@ -464,7 +474,7 @@ def reserve(booking):
     cur = mysql.connection.cursor()
     username = session['username']
     queryStatement = f"""SELECT * FROM user WHERE username = '{username}'"""
-    user_profile = cur.execute(queryStatement)
+    cur.execute(queryStatement)
     user = cur.fetchall()
     print("This will be print in the console", user[0]['user_id'])
     queryStatement4 = f" INSERT INTO receipt (user_id, receipt_electric, receipt_water, receipt_date) VALUES ({user[0]['user_id']}, 0, 0,CURDATE())"
@@ -473,7 +483,7 @@ def reserve(booking):
     cur.close()
 
     flash('Successfully booked the room', 'success')
-    return render_template('booking.html', bookings=booking)
+    return redirect('/')
 
 @app.route('/modify/<problem>/<status>', methods=['GET', 'POST'])
 def modify(problem, status):
@@ -603,6 +613,16 @@ def invoices():
 
     cur.execute(queryStatement)
     receipts = cur.fetchall()
+
+    curr = mysql.connection.cursor()
+    query = f"SELECT role_id FROM user WHERE username = '{session['username']}'"
+    curr.execute(query)
+    check_role = curr.fetchone()
+
+    if check_role['role_id'] != 1:
+        flash('You do not have admin role.', 'danger')
+        return redirect('/')
+
     if receipts is None:
         print("receipts is None")
     else:
@@ -615,6 +635,16 @@ def invoices():
 
 @app.route('/assign-invoice/<int:user_id>', methods=['GET', 'POST'])
 def assign_invoice(user_id):
+
+    curr = mysql.connection.cursor()
+    query = f"SELECT role_id FROM user WHERE username = '{session['username']}'"
+    curr.execute(query)
+    check_role = curr.fetchone()
+
+    if check_role['role_id'] != 1:
+        flash('You do not have admin role.', 'danger')
+        return redirect('/')
+    
     if request.method == 'POST':
         receipt_electric = request.form['receipt_electric']
         receipt_water = request.form['receipt_water']

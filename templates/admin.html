@@ -5,6 +5,7 @@
     <h2>CONTRACTS</h2>
 </div>
 
+{% if rooms %}
 <div class="d-flex justify-content-center">
     <div class="text-center" style="width: 1200px">
         <table class="table table-bordered">
@@ -17,27 +18,31 @@
                     <th class="col-2">CONTRACT END</th>
                 </tr>
             </thead>
-            {% if rooms %}
-                {% for room in rooms %}
-                    <tbody style="background-color:rgb(253, 231, 235);">
-                        <tr>
-                            <td>{{ room['room_type'].upper() }}</td>
-                            <td>{{ room['room_number'] }}</td>
-                            <td>{{ room['first_name'] }} {{ room['last_name'] }}</td>
-                            <td>{{ room['start'] }}</td>
-                            <td>{{ room['end'] }}</td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            {% endif %}
+            {% for room in rooms %}
+                <tbody style="background-color:rgb(253, 231, 235);">
+                    <tr>
+                        <td>{{ room['room_type'].upper() }}</td>
+                        <td>{{ room['room_number'] }}</td>
+                        <td>{{ room['first_name'] }} {{ room['last_name'] }}</td>
+                        <td>{{ room['start'] }}</td>
+                        <td>{{ room['end'] }}</td>
+                    </tr>
+                </tbody>
+            {% endfor %}
         </table>
     </div>
 </div>
+{% else %}
+<div class="text-center">
+    <p>All rooms are still available.</p>
+</div>
+{% endif %}
 
 <div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
     <h2>AVAILABLE ROOMS</h2>
 </div>
 
+{% if empty_rooms %}
 <div class="d-flex justify-content-center">
     <div class="text-center" style="width: 800px;">
         <table class="table table-bordered">
@@ -47,24 +52,28 @@
                     <th class="col-4">ROOM TYPE</th>
                 </tr>
             </thead>
-            {% if empty_rooms %}
-                {% for room in empty_rooms %}
-                    <tbody style="background-color:rgb(253, 231, 235);">
-                        <tr>
-                            <td>{{ room['room_number'] }}</td>
-                            <td>{{ room['room_type'].upper() }}</td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            {% endif %}
+            {% for room in empty_rooms %}
+                <tbody style="background-color:rgb(253, 231, 235);">
+                    <tr>
+                        <td>{{ room['room_number'] }}</td>
+                        <td>{{ room['room_type'].upper() }}</td>
+                    </tr>
+                </tbody>
+            {% endfor %}
         </table>
     </div>
 </div>
+{% else %}
+<div class="text-center">
+    <p>No rooms available.</p>
+</div>
+{% endif %}
 
 <div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
     <h2>PROBLEMS REPORT</h2>
 </div>
 
+{% if problems %}
 <div class="d-flex justify-content-center">
     <div class="text-center" style="width: 1200px;">
         <table class="table table-bordered">
@@ -76,34 +85,39 @@
                     <th class="col-3">UPDATE STATUS</th>
                 </tr>
             </thead>
-            {% if problems %}
-                {% for problem in problems %}
-                    <tbody style="background-color:rgb(253, 231, 235);">
-                        <tr>
-                            <td>{{ problem['room_number'] }}</td>
-                            <td>{{ problem['problem_details'] }}</td>
-                            <td>{{ problem['status'].upper() }}</td>
-                            <td>
-                                {% if statuses %}
-                                <div class="row">
-                                    {% for status in statuses %}
-                                    <div class="col-3">
-                                        <a href="/modify/{{ problem }}/{{status}}" class="btn btn-outline-danger">{{ status[0].upper() }}</a>
-                                    </div>
-                                    {% endfor %}
+            
+            {% for problem in problems %}
+                <tbody style="background-color:rgb(253, 231, 235);">
+                    <tr>
+                        <td>{{ problem['room_number'] }}</td>
+                        <td>{{ problem['problem_details'] }}</td>
+                        <td>{{ problem['status'].upper() }}</td>
+                        <td>
+                            {% if statuses %}
+                            <div class="row">
+                                {% for status in statuses %}
+                                <div class="col-3">
+                                    <a href="/modify/{{ problem }}/{{status}}" class="btn btn-outline-danger">{{ status[0].upper() }}</a>
                                 </div>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </tbody>
-                {% endfor %}
-            {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            {% endfor %}
         </table>
     </div>
 </div>
+{% else %}
+<div class="text-center">
+    <p>No problems yet.</p>
+</div>
+{% endif %}
+
 <div class="text-center" style="margin-top: 50px; margin-bottom: 20px;">
     <h2>INVOICES</h2>
-    <a href="/invoices" class="btn btn-primary">Invoice</a>
+    <a href="/invoices" class="btn btn-outline-danger">Invoice</a>
 </div>
 
 {% endblock %}
